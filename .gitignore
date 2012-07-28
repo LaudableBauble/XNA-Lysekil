@@ -6,6 +6,7 @@ obj
 *.userprefs
 *.user
 *.pidb
+*.suo
 
 */_ReSharper.*/
 */Tetris.6.0.ReSharper.user
