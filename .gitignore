@@ -4,6 +4,7 @@ obj
 
 *.pdb
 *.userprefs
+*.user
 *.pidb
 
 */_ReSharper.*/
