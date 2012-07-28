@@ -18,6 +18,9 @@ namespace Tetris
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        Texture2D square;
+        Vector2 position;
+        Vector2 stop;
 
         public Game1()
         {
@@ -33,7 +36,9 @@ namespace Tetris
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            // TODO: Add your initialization logic here.
+            this.IsMouseVisible = true;
+            position = new Vector2(350, 0);
 
             base.Initialize();
         }
@@ -48,6 +53,7 @@ namespace Tetris
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            square = Content.Load<Texture2D>("Square[1]");
         }
 
         /// <summary>
@@ -67,10 +73,10 @@ namespace Tetris
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed) { this.Exit(); }
 
             // TODO: Add your update logic here
+            position += new Vector2(0, (float)gameTime.ElapsedGameTime.TotalMilliseconds * .1f);
 
             base.Update(gameTime);
         }
@@ -86,7 +92,7 @@ namespace Tetris
             // TODO: Add your drawing code here
             spriteBatch.Begin();
 
-            spriteBatch.Draw(
+            spriteBatch.Draw(square, position, Color.Blue);
 
             spriteBatch.End();
 
