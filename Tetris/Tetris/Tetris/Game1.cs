@@ -84,6 +84,11 @@ namespace Tetris
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            spriteBatch.Begin();
+
+            spriteBatch.Draw(
+
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
