@@ -2,5 +2,20 @@
 bin
 obj
 
+canuteSe.sou
+*.pdb
+*.userprefs
+*.pidb
+
+*/_ReSharper.*/
+*/Tetris.6.0.ReSharper.user
+
+/*/bin/*
+/*/obj/*
+*.*~
+
+
+
+
 # mstest test results
 TestResults
