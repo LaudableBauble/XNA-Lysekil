@@ -5,9 +5,6 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Tetris
 {
-   
-
-
     /// <summary>
     /// This is the main type for your game
     /// </summary>
@@ -18,8 +15,8 @@ namespace Tetris
         private Texture2D _square;
         private Vector2 _position;
         private Vector2 _stop;
-
         private List<Figure> _figures;
+        private InputState _input;
 
         public Game1()
         {
@@ -38,7 +35,7 @@ namespace Tetris
             // TODO: Add your initialization logic here.
             this.IsMouseVisible = true;
             _position = new Vector2(350, 0);
-
+            _input = new InputState();
             _figures = new List<Figure>();
 
             base.Initialize();
@@ -76,6 +73,9 @@ namespace Tetris
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed) { this.Exit(); }
 
+            //Read the keyboard and gamepad.
+            _input.Update();
+
             // TODO: Add your update logic here
             if (RemoveRow())
             {
@@ -83,7 +83,7 @@ namespace Tetris
             }
 
             //Check buttons
-            // - Check turn
+            // - Check turn/rotate
             // - Check down
 
             if (ShouldMove())
