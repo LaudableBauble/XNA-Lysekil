@@ -17,6 +17,11 @@ namespace Tetris
         private Vector2 _stop;
         private List<Figure> _figures;
         private InputState _input;
+        private int _cellWidth;
+        private float _gravity;
+
+        private Vector2 _move;
+        private int _rotate;
 
         public Game1()
         {
@@ -37,6 +42,8 @@ namespace Tetris
             _position = new Vector2(350, 0);
             _input = new InputState();
             _figures = new List<Figure>();
+            _cellWidth = 16;
+            _gravity = 8;
 
             base.Initialize();
         }
@@ -70,11 +77,20 @@ namespace Tetris
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
+            // Allows the game to exit.
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed) { this.Exit(); }
 
             //Read the keyboard and gamepad.
             _input.Update();
+
+            //Check for rotation and movement input.
+            if (_input.IsNewKeyPress(Keys.Up)) { _rotate = _rotate + 1 > 3 ? 0 : _rotate + 1; }
+            else if (_input.IsNewKeyPress(Keys.Right)) { _move.X = _cellWidth; }
+            else if (_input.IsNewKeyPress(Keys.Left)) { _move.X = -_cellWidth; }
+            else if (_input.IsKeyDown(Keys.Down)) { _move.Y = _gravity; }
+
+            //Add gravity.
+            _move.Y += _gravity;
 
             // TODO: Add your update logic here
             if (RemoveRow())
