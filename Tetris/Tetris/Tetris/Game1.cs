@@ -1,30 +1,29 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 
 namespace Tetris
 {
+   
+
+
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class Game1 : Microsoft.Xna.Framework.Game
+    public class Game1 : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        Texture2D square;
-        Vector2 position;
-        Vector2 stop;
+        private GraphicsDeviceManager _graphics;
+        private SpriteBatch _spriteBatch;
+        private Texture2D _square;
+        private Vector2 _position;
+        private Vector2 _stop;
+
+        private List<Figure> _figures;
 
         public Game1()
         {
-            graphics = new GraphicsDeviceManager(this);
+            _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
 
@@ -38,7 +37,9 @@ namespace Tetris
         {
             // TODO: Add your initialization logic here.
             this.IsMouseVisible = true;
-            position = new Vector2(350, 0);
+            _position = new Vector2(350, 0);
+
+            _figures = new List<Figure>();
 
             base.Initialize();
         }
@@ -50,10 +51,10 @@ namespace Tetris
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            square = Content.Load<Texture2D>("Square[1]");
+            _square = Content.Load<Texture2D>("Square[1]");
         }
 
         /// <summary>
@@ -76,9 +77,45 @@ namespace Tetris
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed) { this.Exit(); }
 
             // TODO: Add your update logic here
-            position += new Vector2(0, (float)gameTime.ElapsedGameTime.TotalMilliseconds * .1f);
+            if (RemoveRow())
+            {
+                //ToDo   
+            }
+
+            //Check buttons
+            // - Check turn
+            // - Check down
+
+            if (ShouldMove())
+            {
+                Move(gameTime);
+            }
+            else
+            {
+                CreateNew();
+            }
 
             base.Update(gameTime);
+        }
+
+        private void CreateNew()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        private void Move(GameTime gameTime)
+        {
+            _position += new Vector2(0, (float)gameTime.ElapsedGameTime.TotalMilliseconds * .1f);
+        }
+
+        private bool ShouldMove()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        private bool RemoveRow()
+        {
+            throw new System.NotImplementedException();
         }
 
         /// <summary>
@@ -90,11 +127,11 @@ namespace Tetris
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-            spriteBatch.Begin();
+            _spriteBatch.Begin();
 
-            spriteBatch.Draw(square, position, Color.Blue);
+            _spriteBatch.Draw(_square, _position, Color.Blue);
 
-            spriteBatch.End();
+            _spriteBatch.End();
 
             base.Draw(gameTime);
         }
