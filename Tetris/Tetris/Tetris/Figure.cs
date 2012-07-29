@@ -5,8 +5,6 @@ namespace Tetris
 {
     public class Figure
     {
-        protected bool[,] Grid;
-
         public int Rotate { get; set; }
         public bool IsSleeping { get; set; }
         public List<Block> Blocks { get; set; }
@@ -16,8 +14,20 @@ namespace Tetris
         /// </summary>
         public Figure()
         {
-            Grid = new bool[4, 4];
             Blocks = new List<Block>();
+        }
+
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        /// <param name="currentFigure"></param>
+        public Figure(Figure currentFigure)
+        {
+            Blocks = new List<Block>();
+            foreach (var block in currentFigure.Blocks)
+            {
+                Blocks.Add(new Block() {Height = block.Height, Position = Vector2.Zero, Width = block.Width});
+            }      
         }
 
         /// <summary>
@@ -52,7 +62,7 @@ namespace Tetris
         /// <returns>Whether the figures intersected.</returns>
         public bool Intersects(Figure figure)
         {
-            return Blocks.Exists(item => figure.Intersects(item));
+            return Blocks.Exists(figure.Intersects);
         }
 
         /// <summary>
@@ -108,104 +118,6 @@ namespace Tetris
                 Blocks.ForEach(item => bottom = item.Position.Y + item.Height > bottom.Position.Y + bottom.Height ? item : bottom);
                 Move(new Vector2(0, value - (bottom.Position.Y + bottom.Height)));
             }
-        }
-    }
-
-    class Square : Figure
-    {
-        public Square()
-        {
-            Grid = new bool[4, 4]
-            {
-                { false, false, false, false },
-                { false, true, true, false },
-                { false, true, true, false },
-                { false, false, false, false }
-            };
-        }
-    }
-
-    class Straight : Figure
-    {
-        public Straight()
-        {
-            Grid = new bool[4, 4]
-            {
-                { true, false, false, false },
-                { true, false, false, false },
-                { true, false, false, false },
-                { true, false, false, false }
-            };
-        }
-    }
-
-    class HookRight : Figure
-    {
-        public HookRight()
-        {
-            Grid = new bool[4, 4]
-            {
-                { false, true, false, false },
-                { false, true, false, false },
-                { false, true, false, false },
-                { false, true, true,  false }
-            };
-        }
-    }
-
-    class HookLeft : Figure
-    {
-        public HookLeft()
-        {
-            Grid = new bool[4, 4]
-            {
-                { false, false, true, false },
-                { false, false, true, false },
-                { false, false, true, false },
-                { false,  true, true,  false }
-            };
-        }
-    }
-
-    class TwixRight : Figure
-    {
-        public TwixRight()
-        {
-            Grid = new bool[4, 4]
-            {
-                { false, false, true, false },
-                { false, false, true, false },
-                { false, true, false, false },
-                { false,  true, true,  false }
-            };
-        }
-    }
-
-    class Twixleft : Figure
-    {
-        public Twixleft()
-        {
-            Grid = new bool[4, 4]
-            {
-                { false,  true, false, false },
-                { false,  true, false, false },
-                { false, false,  true, false },
-                { false,  true,  true, false }
-            };
-        }
-    }
-
-    class Arrow : Figure
-    {
-        public Arrow()
-        {
-            Grid = new bool[4, 4]
-            {
-                { true,  true,  true,  false },
-                { false, true,  false, false },
-                { false, false, false, false },
-                { false, false, false, false }
-            };
         }
     }
 }

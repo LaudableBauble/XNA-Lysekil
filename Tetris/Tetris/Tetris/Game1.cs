@@ -104,13 +104,19 @@ namespace Tetris
             {
                 _rotate = _rotate + 1 > 3 ? 0 : _rotate + 1;
             }
-            else if (_input.IsKeyDown(Keys.Right))
+            else if (_input.IsNewKeyPress(Keys.Right))
             {
-                _move.X = _cellWidth;
+                var proj = new Figure(_currentFigure) { Right = _currentFigure.Right, Bottom = _currentFigure.Bottom };
+                proj.Move(new Vector2(_cellWidth, 0));
+                if (!_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj)))
+                    _move.X = _cellWidth;
             }
-            else if (_input.IsKeyDown(Keys.Left))
+            else if (_input.IsNewKeyPress(Keys.Left))
             {
-                _move.X = -_cellWidth;
+                var proj = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom };
+                proj.Move(new Vector2(-_cellWidth, 0));
+                if (!_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj)))
+                    _move.X = -_cellWidth;
             }
             else if (_input.IsKeyDown(Keys.Down))
             {
