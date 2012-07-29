@@ -8,39 +8,56 @@ namespace Tetris
         protected bool[,] Grid;
 
         public int Rotate { get; set; }
-        public Vector2 Position { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
         public bool IsSleeping { get; set; }
         public List<Block> Blocks { get; set; }
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public Figure()
         {
             Grid = new bool[4, 4];
-            Width = 32f;
-            Height = 32f;
-            Position = Vector2.Zero;
             Blocks = new List<Block>();
         }
 
+        /// <summary>
+        /// Add a block to the figure.
+        /// </summary>
+        /// <param name="block">The block to add.</param>
         public void AddBlock(Block block)
         {
             Blocks.Add(block);
         }
+        /// <summary>
+        /// Move the figure by a specified amount.
+        /// </summary>
+        /// <param name="amount">The amount to move.</param>
         public void Move(Vector2 amount)
         {
-            //Move all blocks by the specified amount.
             Blocks.ForEach(item => item.Position += amount);
         }
+        /// <summary>
+        /// Whether a block intersects with this figure.
+        /// </summary>
+        /// <param name="block">The block to check for intersection.</param>
+        /// <returns>Whether the block intersected with this figure.</returns>
         public bool Intersects(Block block)
         {
             return Blocks.Exists(item => item.Intersects(block));
         }
+        /// <summary>
+        /// Whether a figure intersected with this figure.
+        /// </summary>
+        /// <param name="figure">The other figure.</param>
+        /// <returns>Whether the figures intersected.</returns>
         public bool Intersects(Figure figure)
         {
             return Blocks.Exists(item => figure.Intersects(item));
         }
 
+        /// <summary>
+        /// The leftmost x-coordinate of the figure.
+        /// </summary>
         public float Left
         {
             get
@@ -56,6 +73,9 @@ namespace Tetris
                 Move(new Vector2(value - left.Position.X, 0));
             }
         }
+        /// <summary>
+        /// The rightmost x-coordinate of the figure.
+        /// </summary>
         public float Right
         {
             get
@@ -71,6 +91,9 @@ namespace Tetris
                 Move(new Vector2(value - (right.Position.X + right.Width), 0));
             }
         }
+        /// <summary>
+        /// The bottom of the figure, ie. the greatest y-coordinate.
+        /// </summary>
         public float Bottom
         {
             get

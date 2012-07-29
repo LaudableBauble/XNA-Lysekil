@@ -49,7 +49,6 @@ namespace Tetris
             _currentFigure = new Figure();
             _currentFigure.AddBlock(new Block() { Position = new Vector2(16 * 5, 0) });
             _figures.Add(_currentFigure);
-            _currentFigure.Position = new Vector2(16 * 5, 0);
             _cellWidth = 16;
             _gravity = 16;
 
@@ -96,7 +95,6 @@ namespace Tetris
             if (_currentFigure.IsSleeping)
             {
                 _currentFigure = new Figure();
-                _currentFigure.Position = new Vector2(16 * 5, 0);
                 _currentFigure.AddBlock(new Block() { Position = new Vector2(16 * 5, 0) });
                 _figures.Add(_currentFigure);
             }
@@ -121,22 +119,17 @@ namespace Tetris
 
             //Add gravity, update the position and reset the movement variable.
             _move.Y += _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            _currentFigure.Position += _move;
             _currentFigure.Move(_move);
             _move = Vector2.Zero;
 
             //Check for wall collisions.
-            /*_currentFigure.Position = new Vector2(MathHelper.Min(GraphicsDevice.Viewport.Width - _currentFigure.Width,
-                MathHelper.Max(_currentFigure.Position.X, 0)), _currentFigure.Position.Y);*/
             _currentFigure.Left = MathHelper.Max(_currentFigure.Left, 0);
             _currentFigure.Right = MathHelper.Min(_currentFigure.Right, GraphicsDevice.Viewport.Width);
 
             //Check for floor collision.
-            //if (_currentFigure.Position.Y + _currentFigure.Height >= GraphicsDevice.Viewport.Height)
             if (_currentFigure.Bottom >= GraphicsDevice.Viewport.Height)
             {
                 _currentFigure.IsSleeping = true;
-                //_currentFigure.Position = new Vector2(_currentFigure.Position.X, GraphicsDevice.Viewport.Height - _currentFigure.Height);
                 _currentFigure.Bottom = GraphicsDevice.Viewport.Height;
             }
 
