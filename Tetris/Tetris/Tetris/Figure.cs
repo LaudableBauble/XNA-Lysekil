@@ -153,17 +153,18 @@ namespace Tetris
             return new Vector2((float)(origin.X + (position.X - origin.X) * Math.Cos(rotation) - (position.Y - origin.Y) * Math.Sin(rotation)), (float)(origin.Y
             + (position.Y - origin.Y) * Math.Cos(rotation) + (position.X - origin.X) * Math.Sin(rotation)));
         }
-        
+
         public void Rotate()
         {
-            if (CenterBlock != null)
+            //If the figure has no center block, stop here.
+            if (CenterBlock != null) { return; }
+
+            //Rotate each block around the center position.
+            foreach (var block in Blocks)
             {
-                foreach (var block in Blocks)
+                if (block != CenterBlock)
                 {
-                    if (block != CenterBlock)
-                    {
-                        block.Position = RotateVector(block.Position, CenterBlock.Position, (float)Math.PI / 2);
-                    }
+                    block.Position = RotateVector(block.Position, CenterBlock.Position, (float)Math.PI / 2);
                 }
             }
         }

@@ -89,8 +89,9 @@ namespace Tetris
             figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = Vector2.Zero });
             figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT) });
             figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT * 2) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT * 2) });
 
+            //Set the center block.
             figure.CenterBlock = figure.Blocks[2];
 
             //Return the figure.
@@ -112,7 +113,7 @@ namespace Tetris
             figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, 0) });
             figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
             figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT * 2) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT * 2) });
 
             figure.CenterBlock = figure.Blocks[2];
 
@@ -188,7 +189,5 @@ namespace Tetris
             //Return the figure.
             return figure;
         }
-
-       
     }
 }

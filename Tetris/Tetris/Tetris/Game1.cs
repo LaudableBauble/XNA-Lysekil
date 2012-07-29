@@ -13,6 +13,7 @@ namespace Tetris
         private readonly GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _square;
+        private SpriteFont _font;
         private List<Figure> _figures;
         private InputState _input;
         private Effect _tintEffect;
@@ -70,6 +71,7 @@ namespace Tetris
             // TODO: use this.Content to load your game content here
             _square = Content.Load<Texture2D>("Square[2]");
             _tintEffect = Content.Load<Effect>("BlockTint");
+            _font = Content.Load<SpriteFont>("Debug");
         }
 
         /// <summary>
@@ -107,7 +109,7 @@ namespace Tetris
             if (_input.IsNewKeyPress(Keys.Up))
             {
                 int newRotation = _currentFigure.CurrentRotation + 1 > 3 ? 0 : _currentFigure.CurrentRotation + 1;
-                if (IsRotationAllowed(newRotation))
+                if (IsRotationAllowed())
                     _currentFigure.Rotate();
 
             }
@@ -161,17 +163,6 @@ namespace Tetris
             //Call the base method.
             base.Update(gameTime);
         }
-
-        private bool IsRotationAllowed(int newRotation)
-        {
-            //Project the current figure to the new position.
-            var proj = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom, CurrentRotation = _currentFigure.CurrentRotation };
-            proj.Rotate();
-
-            //Return whether the movement is valid.
-            return !_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj));
-        }
-
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -190,6 +181,13 @@ namespace Tetris
             _figures.ForEach(figure => figure.Draw(_spriteBatch, _square, _tintEffect));
             _spriteBatch.End();
 
+            //Draw some debug text.
+            _spriteBatch.Begin();
+            _spriteBatch.DrawString(_font, "Left: " + _currentFigure.Left, new Vector2(10, 20), Color.Black);
+            _spriteBatch.DrawString(_font, "Right: " + _currentFigure.Right, new Vector2(10, 35), Color.Black);
+            _spriteBatch.DrawString(_font, "Bottom: " + _currentFigure.Bottom, new Vector2(10, 50), Color.Black);
+            _spriteBatch.End();
+
             base.Draw(gameTime);
         }
 
@@ -197,12 +195,25 @@ namespace Tetris
         /// See if a move is allowed by a figure.
         /// </summary>
         /// <param name="move">The move amount.</param>
-        /// <returns>Whether the move was valid.</returns>
+        /// <returns>Whether the move is valid.</returns>
         private bool IsMoveAllowed(Vector2 move)
         {
             //Project the current figure to the new position.
             var proj = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom };
             proj.Move(move);
+
+            //Return whether the movement is valid.
+            return !_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj));
+        }
+        /// <summary>
+        /// See if a rotation is allowed by a figure.
+        /// </summary>
+        /// <returns>Whether the rotation is valid.</returns>
+        private bool IsRotationAllowed()
+        {
+            //Project the current figure to the new position.
+            var proj = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom, CurrentRotation = _currentFigure.CurrentRotation };
+            proj.Rotate();
 
             //Return whether the movement is valid.
             return !_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj));
