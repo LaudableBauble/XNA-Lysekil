@@ -153,11 +153,13 @@ namespace Tetris
             return new Vector2((float)(origin.X + (position.X - origin.X) * Math.Cos(rotation) - (position.Y - origin.Y) * Math.Sin(rotation)), (float)(origin.Y
             + (position.Y - origin.Y) * Math.Cos(rotation) + (position.X - origin.X) * Math.Sin(rotation)));
         }
-
+        /// <summary>
+        /// Rotate the figure 90 degrees.
+        /// </summary>
         public void Rotate()
         {
             //If the figure has no center block, stop here.
-            if (CenterBlock != null) { return; }
+            if (CenterBlock == null) { return; }
 
             //Rotate each block around the center position.
             foreach (var block in Blocks)

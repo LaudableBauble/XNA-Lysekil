@@ -151,14 +151,14 @@ namespace Tetris
                 _currentFigure.Bottom = GraphicsDevice.Viewport.Height;
             }
 
-            float possibleOffset = _currentFigure.Left % _cellWidth;
+            /*float possibleOffset = _currentFigure.Left % _cellWidth;
             if (possibleOffset != 0)
             {
                 if (possibleOffset > _cellWidth / 2)
                     _currentFigure.Left += _currentFigure.Left % _cellWidth;
                 else
                     _currentFigure.Left -= _currentFigure.Left % _cellWidth;
-            }
+            }*/
 
             //Call the base method.
             base.Update(gameTime);
