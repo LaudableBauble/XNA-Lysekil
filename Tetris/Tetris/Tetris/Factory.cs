@@ -8,6 +8,9 @@ namespace Tetris
 {
     public static class Factory
     {
+        public const float WIDTH = 32;
+        public const float HEIGHT = 32;
+
         /// <summary>
         /// Get a random figure.
         /// </summary>
@@ -39,10 +42,10 @@ namespace Tetris
             figure.Color = Color.Blue;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = Vector2.Zero });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(32, 0) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(0, 32) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(32, 32) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = Vector2.Zero });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, 0) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
 
             //Return the figure.
             return figure;
@@ -60,10 +63,10 @@ namespace Tetris
             figure.Color = Color.Red;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = Vector2.Zero });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(0, 32) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(0, 64) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(0, 96) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = Vector2.Zero });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT * 2) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT * 3) });
 
             //Return the figure.
             return figure;
@@ -81,10 +84,10 @@ namespace Tetris
             figure.Color = Color.Yellow;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = Vector2.Zero });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(0, 32) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(0, 64) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(32, 32) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = Vector2.Zero });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT * 2) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
 
             //Return the figure.
             return figure;
@@ -102,10 +105,10 @@ namespace Tetris
             figure.Color = Color.Yellow;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(32, 0) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(32, 32) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(32, 64) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(0, 32) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, 0) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT * 2) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT) });
 
             //Return the figure.
             return figure;
@@ -123,10 +126,10 @@ namespace Tetris
             figure.Color = Color.Green;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(0, 32) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(32, 32) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(32, 0) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(64, 0) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, 0) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH * 2, 0) });
 
             //Return the figure.
             return figure;
@@ -144,10 +147,10 @@ namespace Tetris
             figure.Color = Color.Green;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(0, 0) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(32, 0) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(32, 32) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(64, 32) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = Vector2.Zero });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, 0) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH * 2, HEIGHT) });
 
             //Return the figure.
             return figure;
@@ -165,10 +168,10 @@ namespace Tetris
             figure.Color = Color.Purple;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(0, 0) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(32, 0) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(64, 0) });
-            figure.AddBlock(new Block() { Width = 32, Height = 32, Position = new Vector2(32, 32) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, 0) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, 0) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH * 2, 0) });
+            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
 
             //Return the figure.
             return figure;

@@ -68,7 +68,7 @@ namespace Tetris
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            _square = Content.Load<Texture2D>("Square[1]");
+            _square = Content.Load<Texture2D>("Square[2]");
         }
 
         /// <summary>
@@ -109,30 +109,22 @@ namespace Tetris
             }
             else if (_input.IsNewKeyPress(Keys.Right))
             {
-                var proj = new Figure(_currentFigure) { Right = _currentFigure.Right, Bottom = _currentFigure.Bottom };
-                proj.Move(new Vector2(_cellWidth, 0));
-                if (!_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj)))
+                if (IsMoveAllowed(new Vector2(_cellWidth, 0)))
                     _move.X = _cellWidth;
             }
             else if (_input.IsNewKeyPress(Keys.Left))
             {
-                var proj = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom };
-                proj.Move(new Vector2(-_cellWidth, 0));
-                if (!_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj)))
+                if (IsMoveAllowed(new Vector2(-_cellWidth, 0)))
                     _move.X = -_cellWidth;
             }
             else if (_input.IsKeyDown(Keys.Down))
             {
-                var proj = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom };
-                proj.Move(new Vector2(0, _gravity));
-                if (!_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj)))
+                if (IsMoveAllowed(new Vector2(0, _gravity)))
                     _move.Y = _gravity;
             }
 
             //Add gravity.
-            var project = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom };
-            project.Move(new Vector2(0, _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds));
-            if (!_figures.Exists(fig => fig != _currentFigure && fig.Intersects(project)))
+            if (IsMoveAllowed(new Vector2(0, _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds)))
             {
                 _move.Y += _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
@@ -174,6 +166,19 @@ namespace Tetris
             base.Draw(gameTime);
         }
 
-        private bool ProjectIntersection(
+        /// <summary>
+        /// See if a move is allowed by a figure.
+        /// </summary>
+        /// <param name="move">The move amount.</param>
+        /// <returns>Whether the move was valid.</returns>
+        private bool IsMoveAllowed(Vector2 move)
+        {
+            //Project the current figure to the new position.
+            var proj = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom };
+            proj.Move(move);
+
+            //Return whether the movement is valid.
+            return !_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj));
+        }
     }
 }
