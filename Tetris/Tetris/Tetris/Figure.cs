@@ -6,13 +6,19 @@ namespace Tetris
     {
         protected bool[,] Grid;
 
-        public Rectangle Rectangle;
         public int Rotate { get; set; }
+        public Vector2 Position { get; set; }
+        public float Width { get; set; }
+        public float Height { get; set; }
+
+        public bool IsSleeping { get; set; }
 
         public Figure()
         {
             Grid = new bool[4, 4];
-            Rectangle = new Rectangle(0, 0, 32, 32);
+            Width = 32f;
+            Height = 32f;
+            Position = Vector2.Zero;
         }
     }
 
