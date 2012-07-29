@@ -15,6 +15,7 @@ namespace Tetris
         private Texture2D _square;
         private List<Figure> _figures;
         private InputState _input;
+        private Effect _tintEffect;
         private int _cellWidth;
         private float _gravity;
 
@@ -69,6 +70,7 @@ namespace Tetris
 
             // TODO: use this.Content to load your game content here
             _square = Content.Load<Texture2D>("Square[2]");
+            _tintEffect = Content.Load<Effect>("BlockTint");
         }
 
         /// <summary>
@@ -158,9 +160,13 @@ namespace Tetris
             //Clear the screen.
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            //Initialize the tint shader.
+            _tintEffect.CurrentTechnique = _tintEffect.Techniques["ColorTint"];
+            _tintEffect.CurrentTechnique.Passes[0].Apply();
+
             //Draw all figures.
-            _spriteBatch.Begin();
-            _figures.ForEach(figure => figure.Draw(_spriteBatch, _square));
+            _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointWrap, null, null, _tintEffect);
+            _figures.ForEach(figure => figure.Draw(_spriteBatch, _square, _tintEffect));
             _spriteBatch.End();
 
             base.Draw(gameTime);

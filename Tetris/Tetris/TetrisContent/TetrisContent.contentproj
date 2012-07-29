@@ -56,8 +56,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BlockColor.fx">
-      <Name>BlockColor</Name>
+    <Compile Include="BlockTint.fx">
+      <Name>BlockTint</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>

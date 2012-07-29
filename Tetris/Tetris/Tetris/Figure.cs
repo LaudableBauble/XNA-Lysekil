@@ -72,10 +72,15 @@ namespace Tetris
         /// </summary>
         /// <param name="spriteBatch">The spritebatch to use.</param>
         /// <param name="texture">The texture to overlay a block with.</param>
-        public void Draw(SpriteBatch spriteBatch, Texture2D texture)
+        /// <param name="effect">The color tint effect to use.</param>
+        public void Draw(SpriteBatch spriteBatch, Texture2D texture, Effect effect)
         {
+            //Set the color tint.
+            effect.Parameters["TintColor"].SetValue(Color.ToVector4());
+            effect.CurrentTechnique.Passes[0].Apply();
+
             //Draw all blocks.
-            Blocks.ForEach(block => spriteBatch.Draw(texture, block.Position, null, Color, 0, Vector2.Zero,
+            Blocks.ForEach(block => spriteBatch.Draw(texture, block.Position, null, Color.White, 0, Vector2.Zero,
                 new Vector2(block.Width / texture.Bounds.Width, block.Height / texture.Bounds.Height), SpriteEffects.None, 0));
         }
 
