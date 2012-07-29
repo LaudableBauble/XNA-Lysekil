@@ -108,8 +108,7 @@ namespace Tetris
             {
                 int newRotation = _currentFigure.CurrentRotation + 1 > 3 ? 0 : _currentFigure.CurrentRotation + 1;
                 if (IsRotationAllowed(newRotation))
-                    //_currentFigure.Rotate(newRotation);
-                    _currentFigure.RotationStation();
+                    _currentFigure.Rotate();
 
             }
             else if (_input.IsNewKeyPress(Keys.Right))
@@ -150,6 +149,15 @@ namespace Tetris
                 _currentFigure.Bottom = GraphicsDevice.Viewport.Height;
             }
 
+            float possibleOffset = _currentFigure.Left % _cellWidth;
+            if (possibleOffset != 0)
+            {
+                if (possibleOffset > _cellWidth / 2)
+                    _currentFigure.Left += _currentFigure.Left % _cellWidth;
+                else
+                    _currentFigure.Left -= _currentFigure.Left % _cellWidth;
+            }
+
             //Call the base method.
             base.Update(gameTime);
         }
@@ -158,7 +166,7 @@ namespace Tetris
         {
             //Project the current figure to the new position.
             var proj = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom, CurrentRotation = _currentFigure.CurrentRotation };
-            proj.Rotate(newRotation);
+            proj.Rotate();
 
             //Return whether the movement is valid.
             return !_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj));
