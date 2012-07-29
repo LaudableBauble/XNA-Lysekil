@@ -152,7 +152,7 @@ namespace Tetris
             }
 
             /*float possibleOffset = _currentFigure.Left % _cellWidth;
-            if (possibleOffset != 0)
+            if (possibleOffset.CompareTo(0) == 0)
             {
                 if (possibleOffset > _cellWidth / 2)
                     _currentFigure.Left += _currentFigure.Left % _cellWidth;
