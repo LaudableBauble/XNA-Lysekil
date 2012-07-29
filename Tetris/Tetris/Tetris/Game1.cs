@@ -40,17 +40,20 @@ namespace Tetris
             this.IsMouseVisible = true;
 
             // Window size
-            _graphics.PreferredBackBufferWidth = 16 * 10;
+            _graphics.PreferredBackBufferWidth = 16 * 50;
             _graphics.PreferredBackBufferHeight = 500;
             _graphics.ApplyChanges();
 
+            //Initialize the game.
             _input = new InputState();
             _figures = new List<Figure>();
-            _currentFigure = new Figure();
-            _currentFigure.AddBlock(new Block() { Position = new Vector2(16 * 5, 0) });
-            _figures.Add(_currentFigure);
-            _cellWidth = 16;
+            _cellWidth = 32;
             _gravity = 16;
+
+            //Add the first figure.
+            _currentFigure = Factory.RandomFigure();
+            _currentFigure.Move(new Vector2(_cellWidth * 15, 0));
+            _figures.Add(_currentFigure);
 
             base.Initialize();
         }
@@ -94,8 +97,8 @@ namespace Tetris
             //Check if a new figure block should be launched.
             if (_currentFigure.IsSleeping)
             {
-                _currentFigure = new Figure();
-                _currentFigure.AddBlock(new Block() { Position = new Vector2(16 * 5, 0) });
+                _currentFigure = Factory.RandomFigure();
+                _currentFigure.Move(new Vector2(_cellWidth * 15, 0));
                 _figures.Add(_currentFigure);
             }
 
@@ -163,12 +166,14 @@ namespace Tetris
             //Clear the screen.
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            //Draw all blocks.
+            //Draw all figures.
             _spriteBatch.Begin();
-            _figures.ForEach(figure => figure.Blocks.ForEach(block => _spriteBatch.Draw(_square, block.Position, Color.Blue)));
+            _figures.ForEach(figure => figure.Draw(_spriteBatch, _square));
             _spriteBatch.End();
 
             base.Draw(gameTime);
         }
+
+        private bool ProjectIntersection(
     }
 }
