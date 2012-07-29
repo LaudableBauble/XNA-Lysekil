@@ -20,7 +20,6 @@ namespace Tetris
         private float _gravity;
 
         private Vector2 _move;
-        private int _rotate;
         private Figure _currentFigure;
 
         public Game1()
@@ -107,7 +106,10 @@ namespace Tetris
             //Check for rotation and movement input.
             if (_input.IsNewKeyPress(Keys.Up))
             {
-                _rotate = _rotate + 1 > 3 ? 0 : _rotate + 1;
+                int newRotation = _currentFigure.CurrentRotation + 1 > 3 ? 0 : _currentFigure.CurrentRotation + 1;
+                if (IsRotationAllowed(newRotation))
+                    _currentFigure.Rotate(newRotation);
+
             }
             else if (_input.IsNewKeyPress(Keys.Right))
             {
@@ -149,6 +151,16 @@ namespace Tetris
 
             //Call the base method.
             base.Update(gameTime);
+        }
+
+        private bool IsRotationAllowed(int newRotation)
+        {
+            //Project the current figure to the new position.
+            var proj = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom, CurrentRotation = _currentFigure.CurrentRotation };
+            proj.Rotate(newRotation);
+
+            //Return whether the movement is valid.
+            return !_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj));
         }
 
         /// <summary>

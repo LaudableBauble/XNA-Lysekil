@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -6,10 +7,11 @@ namespace Tetris
 {
     public class Figure
     {
-        public int Rotate { get; set; }
+        public int CurrentRotation { get; set; }
         public bool IsSleeping { get; set; }
         public Color Color { get; set; }
         public List<Block> Blocks { get; set; }
+        public Block CenterBlock { get; set; }
 
         /// <summary>
         /// Default constructor.
@@ -136,6 +138,50 @@ namespace Tetris
                 Block bottom = Blocks[0];
                 Blocks.ForEach(item => bottom = item.Position.Y + item.Height > bottom.Position.Y + bottom.Height ? item : bottom);
                 Move(new Vector2(0, value - (bottom.Position.Y + bottom.Height)));
+            }
+        }
+
+        public void Rotate(int newRotation)
+        {
+            if (newRotation > CurrentRotation)
+                RotateRight();
+            else
+                RotateLeft();
+        }
+
+        private void RotateRight()
+        {
+            if (CenterBlock != null)
+            {
+                foreach (var block in Blocks)
+                {
+                    if (block != CenterBlock)
+                    {
+                        float xOffset = CenterBlock.Position.X - block.Position.X;
+                        float yOffset = CenterBlock.Position.Y - block.Position.Y;
+
+                        var newPos = new Vector2(CenterBlock.Position.X + yOffset, CenterBlock.Position.Y + xOffset);
+                        block.Position = newPos;
+                    }
+                }
+            }
+        }
+
+        private void RotateLeft()
+        {
+            if (CenterBlock != null)
+            {
+                foreach (var block in Blocks)
+                {
+                    if (block != CenterBlock)
+                    {
+                        float xOffset = CenterBlock.Position.X + block.Position.X;
+                        float yOffset = CenterBlock.Position.Y + block.Position.Y;
+
+                        var newPos = new Vector2(CenterBlock.Position.X + yOffset, CenterBlock.Position.Y + xOffset);
+                        block.Position = newPos;
+                    }
+                }
             }
         }
     }
