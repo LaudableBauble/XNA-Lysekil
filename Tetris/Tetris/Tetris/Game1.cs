@@ -120,11 +120,22 @@ namespace Tetris
             }
             else if (_input.IsKeyDown(Keys.Down))
             {
-                _move.Y = _gravity;
+                var proj = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom };
+                proj.Move(new Vector2(0, _gravity));
+                if (!_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj)))
+                    _move.Y = _gravity;
             }
 
-            //Add gravity, update the position and reset the movement variable.
-            _move.Y += _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            //Add gravity.
+            var project = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom };
+            project.Move(new Vector2(0, _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds));
+            if (!_figures.Exists(fig => fig != _currentFigure && fig.Intersects(project)))
+            {
+                _move.Y += _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+            else { _currentFigure.IsSleeping = true; }
+
+            //Update the position and reset the movement variable.
             _currentFigure.Move(_move);
             _move = Vector2.Zero;
 
