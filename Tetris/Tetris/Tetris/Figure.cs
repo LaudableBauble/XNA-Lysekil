@@ -1,8 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace Tetris
 {
-    class Figure
+    public class Figure
     {
         protected bool[,] Grid;
 
@@ -10,8 +11,8 @@ namespace Tetris
         public Vector2 Position { get; set; }
         public float Width { get; set; }
         public float Height { get; set; }
-
         public bool IsSleeping { get; set; }
+        public List<Block> Blocks { get; set; }
 
         public Figure()
         {
@@ -19,6 +20,71 @@ namespace Tetris
             Width = 32f;
             Height = 32f;
             Position = Vector2.Zero;
+            Blocks = new List<Block>();
+        }
+
+        public void AddBlock(Block block)
+        {
+            Blocks.Add(block);
+        }
+        public void Move(Vector2 amount)
+        {
+            //Move all blocks by the specified amount.
+            Blocks.ForEach(item => item.Position += amount);
+        }
+        public bool Intersects(Block block)
+        {
+            return Blocks.Exists(item => item.Intersects(block));
+        }
+        public bool Intersects(Figure figure)
+        {
+            return Blocks.Exists(item => figure.Intersects(item));
+        }
+
+        public float Left
+        {
+            get
+            {
+                float left = Blocks[0].Position.X;
+                Blocks.ForEach(item => left = item.Position.X < left ? item.Position.X : left);
+                return left;
+            }
+            set
+            {
+                Block left = Blocks[0];
+                Blocks.ForEach(item => left = item.Position.X < left.Position.X ? item : left);
+                Move(new Vector2(value - left.Position.X, 0));
+            }
+        }
+        public float Right
+        {
+            get
+            {
+                float right = Blocks[0].Position.X + Blocks[0].Width;
+                Blocks.ForEach(item => right = item.Position.X + item.Width > right ? item.Position.X + item.Width : right);
+                return right;
+            }
+            set
+            {
+                Block right = Blocks[0];
+                Blocks.ForEach(item => right = item.Position.X + item.Width > right.Position.X + right.Width ? item : right);
+                Move(new Vector2(value - (right.Position.X + right.Width), 0));
+            }
+        }
+        public float Bottom
+        {
+            get
+            {
+                float bottom = Blocks[0].Position.Y;
+                Blocks.ForEach(item => bottom = item.Position.Y + item.Height > bottom ? item.Position.Y + item.Height : bottom);
+                return bottom;
+            }
+            set
+            {
+                Block bottom = Blocks[0];
+                Blocks.ForEach(item => bottom = item.Position.Y + item.Height > bottom.Position.Y + bottom.Height ? item : bottom);
+                Move(new Vector2(0, value - (bottom.Position.Y + bottom.Height)));
+            }
         }
     }
 
