@@ -42,7 +42,7 @@ namespace Tetris
 
             // Window size
             _graphics.PreferredBackBufferWidth = 16 * 10;
-            _graphics.PreferredBackBufferHeight = 768;
+            _graphics.PreferredBackBufferHeight = 500;
             _graphics.ApplyChanges();
 
             _input = new InputState();
@@ -126,11 +126,11 @@ namespace Tetris
                 if (GraphicsDevice.Viewport.Height > _currentFigure.Position.Y + _currentFigure.Height)
                 {
                     _move.Y = _gravity;
-
                 }
                 else
                 {
                     _currentFigure.IsSleeping = true;
+                    _currentFigure.Position = new Vector2(_currentFigure.Position.X, GraphicsDevice.Viewport.Height - _currentFigure.Height);
                 }
             }
 
@@ -142,6 +142,7 @@ namespace Tetris
             else
             {
                 _currentFigure.IsSleeping = true;
+                _currentFigure.Position = new Vector2(_currentFigure.Position.X, GraphicsDevice.Viewport.Height - _currentFigure.Height);
             }
 
             _currentFigure.Position += _move;
