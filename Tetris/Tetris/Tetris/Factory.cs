@@ -188,5 +188,18 @@ namespace Tetris
             //Return the figure.
             return figure;
         }
+
+        /// <summary>
+        /// Rotate a vector around a point.
+        /// </summary>
+        /// <param name="position">The vector to rotate.</param>
+        /// <param name="origin">The origin of the rotation.</param>
+        /// <param name="rotation">The amount of rotation in radians.</param>
+        /// <returns>The rotated vector.</returns>
+        public static Vector2 RotateVector(Vector2 position, Vector2 origin, float rotation)
+        {
+            return new Vector2((float)(origin.X + (position.X - origin.X) * Math.Cos(rotation) - (position.Y - origin.Y) * Math.Sin(rotation)), (float)(origin.Y
+            + (position.Y - origin.Y) * Math.Cos(rotation) + (position.X - origin.X) * Math.Sin(rotation)));
+        }
     }
 }

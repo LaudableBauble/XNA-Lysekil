@@ -108,7 +108,8 @@ namespace Tetris
             {
                 int newRotation = _currentFigure.CurrentRotation + 1 > 3 ? 0 : _currentFigure.CurrentRotation + 1;
                 if (IsRotationAllowed(newRotation))
-                    _currentFigure.Rotate(newRotation);
+                    //_currentFigure.Rotate(newRotation);
+                    _currentFigure.RotationStation();
 
             }
             else if (_input.IsNewKeyPress(Keys.Right))

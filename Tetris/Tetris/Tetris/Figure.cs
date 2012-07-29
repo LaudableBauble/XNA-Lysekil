@@ -149,6 +149,20 @@ namespace Tetris
                 RotateLeft();
         }
 
+        public void RotationStation()
+        {
+            if (CenterBlock != null)
+            {
+                foreach (var block in Blocks)
+                {
+                    if (block != CenterBlock)
+                    {
+                        block.Position = Factory.RotateVector(block.Position, CenterBlock.Position, (float)Math.PI / 2);
+                    }
+                }
+            }
+        }
+
         private void RotateRight()
         {
             if (CenterBlock != null)
