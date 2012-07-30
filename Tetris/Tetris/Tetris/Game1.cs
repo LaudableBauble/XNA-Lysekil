@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -151,14 +152,15 @@ namespace Tetris
                 _currentFigure.Bottom = GraphicsDevice.Viewport.Height;
             }
 
-            /*float possibleOffset = _currentFigure.Left % _cellWidth;
-            if (possibleOffset.CompareTo(0) == 0)
+            //Check that currentFigure is in one of the _cellWidth-columns
+            var possibleOffset = _currentFigure.Left % _cellWidth;
+            if (possibleOffset.CompareTo(0) != 0)
             {
-                if (possibleOffset > _cellWidth / 2)
-                    _currentFigure.Left += _currentFigure.Left % _cellWidth;
-                else
-                    _currentFigure.Left -= _currentFigure.Left % _cellWidth;
-            }*/
+                var noOffset = Math.Round(_currentFigure.Left);
+                _currentFigure.Left = (float)noOffset;
+            }
+
+
 
             //Call the base method.
             base.Update(gameTime);
@@ -186,6 +188,7 @@ namespace Tetris
             _spriteBatch.DrawString(_font, "Left: " + _currentFigure.Left, new Vector2(10, 20), Color.Black);
             _spriteBatch.DrawString(_font, "Right: " + _currentFigure.Right, new Vector2(10, 35), Color.Black);
             _spriteBatch.DrawString(_font, "Bottom: " + _currentFigure.Bottom, new Vector2(10, 50), Color.Black);
+            _spriteBatch.DrawString(_font, "Offset: " + _currentFigure.Left % _cellWidth, new Vector2(10, 65), Color.Black);
             _spriteBatch.End();
 
             base.Draw(gameTime);
