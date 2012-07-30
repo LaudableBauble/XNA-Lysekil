@@ -95,7 +95,7 @@ namespace Tetris
             {
                 float left = Blocks[0].Position.X;
                 Blocks.ForEach(item => left = item.Position.X < left ? item.Position.X : left);
-                return left;
+                return (float)Math.Round(left);
             }
             set
             {
@@ -113,7 +113,7 @@ namespace Tetris
             {
                 float right = Blocks[0].Position.X + Blocks[0].Width;
                 Blocks.ForEach(item => right = item.Position.X + item.Width > right ? item.Position.X + item.Width : right);
-                return right;
+                return (float)Math.Round(right);
             }
             set
             {
@@ -131,7 +131,7 @@ namespace Tetris
             {
                 float bottom = Blocks[0].Position.Y;
                 Blocks.ForEach(item => bottom = item.Position.Y + item.Height > bottom ? item.Position.Y + item.Height : bottom);
-                return bottom;
+                return (float)Math.Round(bottom);
             }
             set
             {

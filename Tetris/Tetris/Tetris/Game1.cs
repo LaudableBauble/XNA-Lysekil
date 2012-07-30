@@ -116,18 +116,18 @@ namespace Tetris
             }
             else if (_input.IsNewKeyPress(Keys.Right))
             {
-                if (IsMoveAllowed(new Vector2(_cellWidth, 0)))
-                    _move.X = _cellWidth;
+                Vector2 move = new Vector2(_cellWidth, 0);
+                if (IsMoveAllowed(move, out move)) { _move = move; }
             }
             else if (_input.IsNewKeyPress(Keys.Left))
             {
-                if (IsMoveAllowed(new Vector2(-_cellWidth, 0)))
-                    _move.X = -_cellWidth;
+                Vector2 move = new Vector2(-_cellWidth, 0);
+                if (IsMoveAllowed(move, out move)) { _move = move; }
             }
             else if (_input.IsKeyDown(Keys.Down))
             {
-                if (IsMoveAllowed(new Vector2(0, _gravity)))
-                    _move.Y = _gravity;
+                Vector2 move = new Vector2(0, _gravity);
+                if (IsMoveAllowed(move, out move)) { _move = move; }
             }
 
             //Add gravity.
@@ -152,15 +152,13 @@ namespace Tetris
                 _currentFigure.Bottom = GraphicsDevice.Viewport.Height;
             }
 
-            //Check that currentFigure is in one of the _cellWidth-columns
+            //Check that currentFigure is in one of the _cellWidth-columns.
             var possibleOffset = _currentFigure.Left % _cellWidth;
             if (possibleOffset.CompareTo(0) != 0)
             {
                 var noOffset = Math.Round(_currentFigure.Left);
                 _currentFigure.Left = (float)noOffset;
             }
-
-
 
             //Call the base method.
             base.Update(gameTime);
@@ -207,6 +205,54 @@ namespace Tetris
 
             //Return whether the movement is valid.
             return !_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj));
+        }
+        /// <summary>
+        /// See if a move is allowed by a figure.
+        /// </summary>
+        /// <param name="move">The desired move amount.</param>
+        /// <param name="assist">The </param>
+        /// <returns>Whether the move is valid.</returns>
+        private bool IsMoveAllowed(Vector2 move, out Vector2 assist)
+        {
+            //Set some startup variables.
+            int leeway = 16;
+            bool valid = false;
+            assist = move;
+
+            //Create a clone to project into the desired space.
+            Figure proj = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom };
+
+            //Try to find an acceptable position by granting the figure some leeway.
+            for (int x = 0; x <= leeway; x++)
+            {
+                for (int y = 0; y <= leeway; y++)
+                {
+                    //Do four tests; (x, y), (x, -y), (-x, y), (-x, -y).
+                    for (int n = 0; n < 4; n++)
+                    {
+                        //Decide upon the x, y configuration.
+                        Vector2 config = Vector2.Zero;
+                        switch (n)
+                        {
+                            case 0: { config = new Vector2(x, y); break; }
+                            case 1: { config = new Vector2(x, -y); break; }
+                            case 2: { config = new Vector2(-x, y); break; }
+                            case 3: { config = new Vector2(-x, -y); break; }
+                        }
+
+                        //Project the current figure to the new position and see whether the move was valid.
+                        proj.Move(move + config);
+                        valid = !_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj));
+                        proj.Move(-(move + config));
+
+                        //If the move was valid, stop here.
+                        if (valid) { assist = move + config; return valid; }
+                    }
+                }
+            }
+
+            //Return the result (Hint: fail).
+            return valid;
         }
         /// <summary>
         /// See if a rotation is allowed by a figure.
