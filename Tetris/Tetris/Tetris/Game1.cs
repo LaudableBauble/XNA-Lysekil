@@ -167,11 +167,15 @@ namespace Tetris
             }
 
             //Check that currentFigure is in one of the _cellWidth-columns.
-            var possibleOffset = _currentFigure.Left % _cellWidth;
-            if (possibleOffset.CompareTo(0) != 0)
+            if ((_currentFigure.Left % _cellWidth).CompareTo(0) != 0)
             {
-                var noOffset = Math.Round(_currentFigure.Left);
-                _currentFigure.Left = (float)noOffset;
+                //var noOffset = Math.Round(_currentFigure.Left);
+                _currentFigure.Left = (float)(_cellWidth * (int)Math.Round(_currentFigure.Left / _cellWidth));
+            }
+            //Check that currentFigure is in one of the _cellWidth-rows.
+            if ((_currentFigure.Bottom % _cellWidth).CompareTo(0) != 0 && _currentFigure.IsSleeping)
+            {
+                _currentFigure.Bottom = (float)(_cellWidth * (int)Math.Round(_currentFigure.Bottom / _cellWidth));
             }
 
             //Call the base method.

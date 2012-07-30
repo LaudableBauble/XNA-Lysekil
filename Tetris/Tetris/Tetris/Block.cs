@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 
 namespace Tetris
 {
@@ -7,7 +8,12 @@ namespace Tetris
     /// </summary>
     public class Block
     {
-        public Vector2 Position { get; set; }
+        private Vector2 _position;
+        public Vector2 Position
+        {
+            get { return _position; }
+            set { _position = new Vector2((float)Math.Round(value.X), value.Y); }
+        }
         public float Width { get; set; }
         public float Height { get; set; }
 
