@@ -44,7 +44,7 @@ namespace Tetris
 
             // Window size
             _graphics.PreferredBackBufferWidth = 16 * 50;
-            _graphics.PreferredBackBufferHeight = 500;
+            _graphics.PreferredBackBufferHeight = 16 * 40;
             _graphics.ApplyChanges();
 
             //Initialize the game.
