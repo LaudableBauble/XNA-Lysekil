@@ -23,6 +23,7 @@ namespace Tetris
 
         private Vector2 _move;
         private Figure _currentFigure;
+        private Figure _debugFigure;
 
         public Game1()
         {
@@ -56,6 +57,9 @@ namespace Tetris
             _currentFigure = Factory.RandomFigure();
             _currentFigure.Move(new Vector2(_cellWidth * 15, 0));
             _figures.Add(_currentFigure);
+
+            //Set the debug figure.
+            _debugFigure = _currentFigure;
 
             base.Initialize();
         }
@@ -98,10 +102,22 @@ namespace Tetris
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed) { this.Exit(); }
             if (_input.IsKeyDown(Keys.Escape)) { this.Exit(); }
 
+            #region Debug
+            //Select a figure.
+            if (_input.IsNewLeftMouseClick())
+            {
+                _debugFigure = _figures.Find(item => item.Contains(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)));
+                _debugFigure = _debugFigure == null ? _currentFigure : _debugFigure;
+            }
+            //Pause the game, ie. stop the gravity.
+            if (_input.IsNewKeyPress(Keys.P)) { _gravity = _gravity == 0 ? 16 : 0; }
+            #endregion
+
             //Check if a new figure block should be launched.
             if (_currentFigure.IsSleeping)
             {
                 _currentFigure = Factory.RandomFigure();
+                if (_debugFigure == _figures[_figures.Count - 1]) { _debugFigure = _currentFigure; }
                 _currentFigure.Move(new Vector2(_cellWidth * 15, 0));
                 _figures.Add(_currentFigure);
             }
@@ -117,29 +133,27 @@ namespace Tetris
             else if (_input.IsNewKeyPress(Keys.Right))
             {
                 Vector2 move = new Vector2(_cellWidth, 0);
-                if (IsMoveAllowed(move, out move)) { _move = move; }
+                if (IsMoveAllowed(move, out move, true)) { _move = move; }
             }
             else if (_input.IsNewKeyPress(Keys.Left))
             {
                 Vector2 move = new Vector2(-_cellWidth, 0);
-                if (IsMoveAllowed(move, out move)) { _move = move; }
+                if (IsMoveAllowed(move, out move, true)) { _move = move; }
             }
             else if (_input.IsKeyDown(Keys.Down))
             {
                 Vector2 move = new Vector2(0, _gravity);
-                if (IsMoveAllowed(move, out move)) { _move = move; }
+                if (IsMoveAllowed(move, out move, false)) { _move = move; }
             }
-
-            //Add gravity.
-            if (IsMoveAllowed(new Vector2(0, _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds)))
-            {
-                _move.Y += _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-            else { _currentFigure.IsSleeping = true; }
 
             //Update the position and reset the movement variable.
             _currentFigure.Move(_move);
             _move = Vector2.Zero;
+
+            //Add gravity.
+            Vector2 m = new Vector2(0, _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds);
+            if (IsMoveAllowed(m, out m, false)) { _currentFigure.Move(m); }
+            else { _currentFigure.IsSleeping = true; }
 
             //Check for wall collisions.
             _currentFigure.Left = MathHelper.Max(_currentFigure.Left, 0);
@@ -176,17 +190,22 @@ namespace Tetris
             _tintEffect.CurrentTechnique = _tintEffect.Techniques["ColorTint"];
             _tintEffect.CurrentTechnique.Passes[0].Apply();
 
+            bool b = new Rectangle(0, 0, 32, 32).Intersects(new Rectangle(32, 0, 32, 32));
+
             //Draw all figures.
             _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointWrap, null, null, _tintEffect);
             _figures.ForEach(figure => figure.Draw(_spriteBatch, _square, _tintEffect));
             _spriteBatch.End();
 
-            //Draw some debug text.
+            //Draw some debug data.
             _spriteBatch.Begin();
-            _spriteBatch.DrawString(_font, "Left: " + _currentFigure.Left, new Vector2(10, 20), Color.Black);
-            _spriteBatch.DrawString(_font, "Right: " + _currentFigure.Right, new Vector2(10, 35), Color.Black);
-            _spriteBatch.DrawString(_font, "Bottom: " + _currentFigure.Bottom, new Vector2(10, 50), Color.Black);
-            _spriteBatch.DrawString(_font, "Offset: " + _currentFigure.Left % _cellWidth, new Vector2(10, 65), Color.Black);
+            _spriteBatch.DrawString(_font, "Pause with P and select a figure to debug with left mouse button.", new Vector2(10, 15), Color.Black);
+            _spriteBatch.DrawString(_font, "----------", new Vector2(10, 30), Color.Black);
+            _spriteBatch.DrawString(_font, "Left: " + _debugFigure.Left, new Vector2(10, 45), Color.Black);
+            _spriteBatch.DrawString(_font, "Right: " + _debugFigure.Right, new Vector2(10, 60), Color.Black);
+            _spriteBatch.DrawString(_font, "Top: " + _debugFigure.Top, new Vector2(10, 75), Color.Black);
+            _spriteBatch.DrawString(_font, "Bottom: " + _debugFigure.Bottom, new Vector2(10, 90), Color.Black);
+            _spriteBatch.DrawString(_font, "Offset: " + _debugFigure.Left % _cellWidth, new Vector2(10, 105), Color.Black);
             _spriteBatch.End();
 
             base.Draw(gameTime);
@@ -206,13 +225,13 @@ namespace Tetris
             //Return whether the movement is valid.
             return !_figures.Exists(fig => fig != _currentFigure && fig.Intersects(proj));
         }
-        /// <summary>
         /// See if a move is allowed by a figure.
         /// </summary>
         /// <param name="move">The desired move amount.</param>
         /// <param name="assist">The </param>
+        /// <param name="allowNegativeY">Whether to allow the figure to find a position above the current one.</param>
         /// <returns>Whether the move is valid.</returns>
-        private bool IsMoveAllowed(Vector2 move, out Vector2 assist)
+        private bool IsMoveAllowed(Vector2 move, out Vector2 assist, bool allowNegativeY)
         {
             //Set some startup variables.
             int leeway = 16;
@@ -235,9 +254,9 @@ namespace Tetris
                         switch (n)
                         {
                             case 0: { config = new Vector2(x, y); break; }
-                            case 1: { config = new Vector2(x, -y); break; }
+                            case 1: { config = allowNegativeY ? new Vector2(x, -y) : new Vector2(x, y); break; }
                             case 2: { config = new Vector2(-x, y); break; }
-                            case 3: { config = new Vector2(-x, -y); break; }
+                            case 3: { config = allowNegativeY ? new Vector2(-x, -y) : new Vector2(-x, y); break; }
                         }
 
                         //Project the current figure to the new position and see whether the move was valid.

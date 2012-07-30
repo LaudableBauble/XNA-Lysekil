@@ -36,6 +36,23 @@ namespace Tetris
         }
 
         /// <summary>
+        /// Draw the figure.
+        /// </summary>
+        /// <param name="spriteBatch">The spritebatch to use.</param>
+        /// <param name="texture">The texture to overlay a block with.</param>
+        /// <param name="effect">The color tint effect to use.</param>
+        public void Draw(SpriteBatch spriteBatch, Texture2D texture, Effect effect)
+        {
+            //Set the color tint.
+            effect.Parameters["TintColor"].SetValue(Color.ToVector4());
+            effect.CurrentTechnique.Passes[0].Apply();
+
+            //Draw all blocks.
+            Blocks.ForEach(block => spriteBatch.Draw(texture, block.Position, null, Color.White, 0, Vector2.Zero,
+                new Vector2(block.Width / texture.Bounds.Width, block.Height / texture.Bounds.Height), SpriteEffects.None, 0));
+        }
+
+        /// <summary>
         /// Add a block to the figure.
         /// </summary>
         /// <param name="block">The block to add.</param>
@@ -70,20 +87,42 @@ namespace Tetris
             return Blocks.Exists(figure.Intersects);
         }
         /// <summary>
-        /// This is called when the game should draw itself.
+        /// Whether this figure contains a vector.
         /// </summary>
-        /// <param name="spriteBatch">The spritebatch to use.</param>
-        /// <param name="texture">The texture to overlay a block with.</param>
-        /// <param name="effect">The color tint effect to use.</param>
-        public void Draw(SpriteBatch spriteBatch, Texture2D texture, Effect effect)
+        /// <param name="v">The vector.</param>
+        /// <returns>Whether this figure contains a vector.</returns>
+        public bool Contains(Vector2 v)
         {
-            //Set the color tint.
-            effect.Parameters["TintColor"].SetValue(Color.ToVector4());
-            effect.CurrentTechnique.Passes[0].Apply();
+            return Blocks.Exists(item => item.Contains(v));
+        }
+        /// <summary>
+        /// Rotate a vector around a point.
+        /// </summary>
+        /// <param name="position">The vector to rotate.</param>
+        /// <param name="origin">The origin of the rotation.</param>
+        /// <param name="rotation">The amount of rotation in radians.</param>
+        /// <returns>The rotated vector.</returns>
+        public static Vector2 RotateVector(Vector2 position, Vector2 origin, float rotation)
+        {
+            return new Vector2((float)(origin.X + (position.X - origin.X) * Math.Cos(rotation) - (position.Y - origin.Y) * Math.Sin(rotation)), (float)(origin.Y
+            + (position.Y - origin.Y) * Math.Cos(rotation) + (position.X - origin.X) * Math.Sin(rotation)));
+        }
+        /// <summary>
+        /// Rotate the figure 90 degrees.
+        /// </summary>
+        public void Rotate()
+        {
+            //If the figure has no center block, stop here.
+            if (CenterBlock == null) { return; }
 
-            //Draw all blocks.
-            Blocks.ForEach(block => spriteBatch.Draw(texture, block.Position, null, Color.White, 0, Vector2.Zero,
-                new Vector2(block.Width / texture.Bounds.Width, block.Height / texture.Bounds.Height), SpriteEffects.None, 0));
+            //Rotate each block around the center position.
+            foreach (var block in Blocks)
+            {
+                if (block != CenterBlock)
+                {
+                    block.Position = RotateVector(block.Position, CenterBlock.Position, (float)Math.PI / 2);
+                }
+            }
         }
 
         /// <summary>
@@ -140,34 +179,22 @@ namespace Tetris
                 Move(new Vector2(0, value - (bottom.Position.Y + bottom.Height)));
             }
         }
-
         /// <summary>
-        /// Rotate a vector around a point.
+        /// The top of the figure, ie. the smallest y-coordinate.
         /// </summary>
-        /// <param name="position">The vector to rotate.</param>
-        /// <param name="origin">The origin of the rotation.</param>
-        /// <param name="rotation">The amount of rotation in radians.</param>
-        /// <returns>The rotated vector.</returns>
-        public static Vector2 RotateVector(Vector2 position, Vector2 origin, float rotation)
+        public float Top
         {
-            return new Vector2((float)(origin.X + (position.X - origin.X) * Math.Cos(rotation) - (position.Y - origin.Y) * Math.Sin(rotation)), (float)(origin.Y
-            + (position.Y - origin.Y) * Math.Cos(rotation) + (position.X - origin.X) * Math.Sin(rotation)));
-        }
-        /// <summary>
-        /// Rotate the figure 90 degrees.
-        /// </summary>
-        public void Rotate()
-        {
-            //If the figure has no center block, stop here.
-            if (CenterBlock == null) { return; }
-
-            //Rotate each block around the center position.
-            foreach (var block in Blocks)
+            get
             {
-                if (block != CenterBlock)
-                {
-                    block.Position = RotateVector(block.Position, CenterBlock.Position, (float)Math.PI / 2);
-                }
+                float top = Blocks[0].Position.Y;
+                Blocks.ForEach(item => top = item.Position.Y < top ? item.Position.Y : top);
+                return (float)Math.Round(top);
+            }
+            set
+            {
+                Block top = Blocks[0];
+                Blocks.ForEach(item => top = item.Position.Y < top.Position.Y ? item : top);
+                Move(new Vector2(0, value - top.Position.Y));
             }
         }
     }

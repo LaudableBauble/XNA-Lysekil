@@ -30,5 +30,14 @@ namespace Tetris
             return new Rectangle((int)Position.X, (int)Position.Y, (int)Width, (int)Height).Intersects(
                 new Rectangle((int)block.Position.X, (int)block.Position.Y, (int)block.Width, (int)block.Height));
         }
+        /// <summary>
+        /// Whether this block contains a vector.
+        /// </summary>
+        /// <param name="v">The vector.</param>
+        /// <returns>Whether this block contains a vector.</returns>
+        public bool Contains(Vector2 v)
+        {
+            return new Rectangle((int)Position.X, (int)Position.Y, (int)Width, (int)Height).Contains((int)v.X, (int)v.Y);
+        }
     }
 }
