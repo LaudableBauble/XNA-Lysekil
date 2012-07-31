@@ -8,12 +8,8 @@ namespace Tetris
     /// </summary>
     public class Block
     {
-        private Vector2 _position;
-        public Vector2 Position
-        {
-            get { return _position; }
-            set { _position = new Vector2((float)Math.Round(value.X), value.Y); }
-        }
+        public Figure Parent { get; set; }
+        public Vector2 Position { get; set; }
         public float Width { get; set; }
         public float Height { get; set; }
 
@@ -22,6 +18,8 @@ namespace Tetris
         /// </summary>
         public Block()
         {
+            Parent = null;
+            Position = Vector2.Zero;
             Width = 32;
             Height = 32;
         }

@@ -7,8 +7,8 @@ namespace Tetris
 {
     public class Figure
     {
-        public int CurrentRotation { get; set; }
         public bool IsSleeping { get; set; }
+        public bool IsEmpty { get; set; }
         public Color Color { get; set; }
         public List<Block> Blocks { get; set; }
         public Block CenterBlock { get; set; }
@@ -59,6 +59,18 @@ namespace Tetris
         public void AddBlock(Block block)
         {
             Blocks.Add(block);
+            block.Parent = this;
+            IsEmpty = false;
+        }
+        /// <summary>
+        /// Remove a block from the figure.
+        /// </summary>
+        /// <param name="block">The block to remove.</param>
+        public void RemoveBlock(Block block)
+        {
+            Blocks.Remove(block);
+            block.Parent = null;
+            IsEmpty = Blocks.Count > 0 ? false : true;
         }
         /// <summary>
         /// Move the figure by a specified amount.
@@ -94,6 +106,15 @@ namespace Tetris
         public bool Contains(Vector2 v)
         {
             return Blocks.Exists(item => item.Contains(v));
+        }
+        /// <summary>
+        /// Get the blocks that contain a specific vector.
+        /// </summary>
+        /// <param name="v">The vector.</param>
+        /// <returns>The blocks that contain the vector.</returns>
+        public List<Block> GetBlocks(Vector2 v)
+        {
+            return Blocks.FindAll(item => item.Contains(v));
         }
         /// <summary>
         /// Rotate a vector around a point.
