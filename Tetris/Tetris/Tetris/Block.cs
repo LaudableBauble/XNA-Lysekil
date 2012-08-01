@@ -15,7 +15,6 @@ namespace Tetris
         public float Width { get; set; }
         public float Height { get; set; }
         public bool IsSleeping { get; set; }
-        public bool IsDead { get; set; }
 
         /// <summary>
         /// Default constructor.
@@ -28,7 +27,6 @@ namespace Tetris
             Width = 32;
             Height = 32;
             IsSleeping = false;
-            IsDead = false;
         }
         /// <summary>
         /// Cloning constructor.
@@ -41,7 +39,6 @@ namespace Tetris
             Width = block.Width;
             Height = block.Height;
             IsSleeping = block.IsSleeping;
-            IsDead = block.IsDead;
         }
 
         /// <summary>

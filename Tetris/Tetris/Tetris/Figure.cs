@@ -12,7 +12,6 @@ namespace Tetris
             get { return !Blocks.Exists(b => !b.IsSleeping); }
             set { Blocks.ForEach(b => b.IsSleeping = value); }
         }
-        public bool IsEmpty { get; set; }
         private Color _color;
         public Color Color
         {
@@ -67,7 +66,6 @@ namespace Tetris
             Blocks.Add(block);
             block.Parent = this;
             block.Color = Color;
-            IsEmpty = false;
         }
         /// <summary>
         /// Remove a block from the figure.
@@ -77,7 +75,6 @@ namespace Tetris
         {
             Blocks.Remove(block);
             block.Parent = null;
-            IsEmpty = Blocks.Count > 0 ? false : true;
         }
         /// <summary>
         /// Move the figure by a specified amount.
