@@ -7,7 +7,11 @@ namespace Tetris
 {
     public class Figure
     {
-        public bool IsSleeping { get; set; }
+        public bool IsSleeping
+        {
+            get { return !Blocks.Exists(b => !b.IsSleeping); }
+            set { Blocks.ForEach(b => b.IsSleeping = value); }
+        }
         public bool IsEmpty { get; set; }
         public Color Color { get; set; }
         public List<Block> Blocks { get; set; }
@@ -29,10 +33,7 @@ namespace Tetris
         {
             Color = figure.Color;
             Blocks = new List<Block>();
-            foreach (var block in figure.Blocks)
-            {
-                Blocks.Add(new Block() { Height = block.Height, Position = block.Position, Width = block.Width });
-            }
+            foreach (var block in figure.Blocks) { Blocks.Add(new Block(block)); }
         }
 
         /// <summary>
@@ -48,8 +49,7 @@ namespace Tetris
             effect.CurrentTechnique.Passes[0].Apply();
 
             //Draw all blocks.
-            Blocks.ForEach(block => spriteBatch.Draw(texture, block.Position, null, Color.White, 0, Vector2.Zero,
-                new Vector2(block.Width / texture.Bounds.Width, block.Height / texture.Bounds.Height), SpriteEffects.None, 0));
+            Blocks.ForEach(block => block.Draw(spriteBatch, texture, effect));
         }
 
         /// <summary>
