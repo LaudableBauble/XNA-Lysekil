@@ -13,7 +13,12 @@ namespace Tetris
             set { Blocks.ForEach(b => b.IsSleeping = value); }
         }
         public bool IsEmpty { get; set; }
-        public Color Color { get; set; }
+        private Color _color;
+        public Color Color
+        {
+            get { return _color; }
+            set { _color = value; if (Blocks != null) { Blocks.ForEach(b => b.Color = value); } }
+        }
         public List<Block> Blocks { get; set; }
         public Block CenterBlock { get; set; }
 
@@ -34,6 +39,7 @@ namespace Tetris
             Color = figure.Color;
             Blocks = new List<Block>();
             foreach (var block in figure.Blocks) { Blocks.Add(new Block(block)); }
+            CenterBlock = figure.CenterBlock == null ? null : Blocks[figure.Blocks.IndexOf(figure.CenterBlock)];
         }
 
         /// <summary>
@@ -60,6 +66,7 @@ namespace Tetris
         {
             Blocks.Add(block);
             block.Parent = this;
+            block.Color = Color;
             IsEmpty = false;
         }
         /// <summary>

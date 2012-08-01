@@ -152,7 +152,7 @@ namespace Tetris
             if (IsMoveAllowed(_currentFigure, m, out m, false)) { _currentFigure.Move(m); }
             else { _currentFigure.IsSleeping = true; }
 
-            //Add gravity to all blocks not sleeping.
+            //Add gravity to all blocks not sleeping and not part of the current figure.
             foreach (Block block in _blocks.FindAll(item => !item.IsSleeping && !_currentFigure.Blocks.Contains(item)))
             {
                 //Figure out the gravity movement for the block.
@@ -160,7 +160,7 @@ namespace Tetris
                 else { block.IsSleeping = true; }
             }
 
-            //Check for floor collision for all blocks not sleeping.
+            //Check for floor collision for all blocks not sleeping and not part of the current figure.
             foreach (Block block in _blocks.FindAll(item => !item.IsSleeping && !_currentFigure.Blocks.Contains(item)))
             {
                 if (block.Position.Y + block.Height >= GraphicsDevice.Viewport.Height)
@@ -182,11 +182,17 @@ namespace Tetris
                 }
             }
 
-            //Check that currentFigure is in one of the _cellWidth-columns.
-            if ((_currentFigure.Left % _cellWidth).CompareTo(0) != 0)
+            //Check that all blocks is in one of the _cellWidth-columns and, if sleeping, also is in one of the _cellWidth-rows.
+            foreach (Block block in _blocks)
             {
-                //var noOffset = Math.Round(_currentFigure.Left);
-                _currentFigure.Left = (float)(_cellWidth * (int)Math.Round(_currentFigure.Left / _cellWidth));
+                if ((block.Position.X % _cellWidth).CompareTo(0) != 0)
+                {
+                    block.Position = new Vector2((float)(_cellWidth * (int)Math.Round(block.Position.X / _cellWidth)), block.Position.Y);
+                }
+                if ((block.Position.Y % _cellWidth).CompareTo(0) != 0 && block.IsSleeping)
+                {
+                    block.Position = new Vector2(block.Position.X, (float)(_cellWidth * (int)Math.Round(block.Position.Y / _cellWidth)));
+                }
             }
             //Check that currentFigure is in one of the _cellWidth-rows.
             if ((_currentFigure.Bottom % _cellWidth).CompareTo(0) != 0 && _currentFigure.IsSleeping)
@@ -386,7 +392,7 @@ namespace Tetris
                 }
 
                 //If the row is complete, save it to the main list.
-                //TODO: Note that a figure that have multiple blocks on the same position will break this check.
+                //TODO: Note that a multiple blocks on the same position will break this check.
                 if (row.Count == colCount) { rows.Add(row); }
             }
 
