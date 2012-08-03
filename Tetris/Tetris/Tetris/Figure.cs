@@ -5,11 +5,15 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Tetris
 {
-    public class Figure
+    /// <summary>
+    /// A figure is a shape built upon a multitude of blocks.
+    /// </summary>
+    public class Figure : IMovable
     {
+        public IMovable Parent { get { return null; } set { } }
         public bool IsSleeping
         {
-            get { return !Blocks.Exists(b => !b.IsSleeping); }
+            get { return Blocks.Exists(b => b.IsSleeping); }
             set { Blocks.ForEach(b => b.IsSleeping = value); }
         }
         private Color _color;
@@ -102,6 +106,10 @@ namespace Tetris
         {
             return Blocks.Exists(figure.Intersects);
         }
+        public bool IsIntersecting(IMovable entity)
+        {
+            return entity != this && Blocks.Exists(block => block.IsIntersecting(entity));
+        }
         /// <summary>
         /// Whether this figure contains a vector.
         /// </summary>
@@ -148,6 +156,10 @@ namespace Tetris
                     block.Position = RotateVector(block.Position, CenterBlock.Position, (float)Math.PI / 2);
                 }
             }
+        }
+        public Rectangle ToRectangle()
+        {
+            return new Rectangle((int)Left, (int)Top, (int)(Right - Left), (int)(Bottom - Top));
         }
 
         /// <summary>

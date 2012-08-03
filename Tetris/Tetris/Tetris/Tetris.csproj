@@ -110,6 +110,7 @@
     <Compile Include="Block.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="Figure.cs" />
+    <Compile Include="IMovable.cs" />
     <Compile Include="InputState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />

@@ -7,9 +7,9 @@ namespace Tetris
     /// <summary>
     /// A block is a square piece capable of forming into more complex figures.
     /// </summary>
-    public class Block
+    public class Block : IMovable
     {
-        public Figure Parent { get; set; }
+        public IMovable Parent { get; set; }
         public Vector2 Position { get; set; }
         public Color Color { get; set; }
         public float Width { get; set; }
@@ -76,6 +76,18 @@ namespace Tetris
         public bool Contains(Vector2 v)
         {
             return new Rectangle((int)Position.X, (int)Position.Y, (int)Width, (int)Height).Contains((int)v.X, (int)v.Y);
+        }
+        public bool IsIntersecting(IMovable entity)
+        {
+            return this != entity && entity.Parent != Parent && ToRectangle().Intersects(entity.ToRectangle());
+        }
+        public void Move(Vector2 amount)
+        {
+            Position += amount;
+        }
+        public Rectangle ToRectangle()
+        {
+            return new Rectangle((int)Position.X, (int)Position.Y, (int)Width, (int)Height);
         }
     }
 }

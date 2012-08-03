@@ -102,7 +102,7 @@ namespace Tetris
             if (_input.IsNewLeftMouseClick())
             {
                 Block debug = _blocks.Find(item => item.Contains(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)));
-                _debugFigure = debug == null || debug.Parent == null ? _currentFigure : debug.Parent;
+                _debugFigure = debug == null || debug.Parent == null ? _currentFigure : (Figure)debug.Parent;
             }
             //Pause the game, ie. stop the gravity.
             if (_input.IsNewKeyPress(Keys.P)) { _gravity = _gravity == 0 ? 16 : 0; }
@@ -152,18 +152,19 @@ namespace Tetris
             }
             #endregion
 
-            //Add gravity to the current figure if it is not sleeping.
-            Vector2 m = new Vector2(0, _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            if (IsMoveAllowed(_currentFigure, m, out m, false)) { _currentFigure.Move(m); }
-            else { _currentFigure.IsSleeping = true; }
-
             //Add gravity to all blocks not sleeping and not part of the current figure.
+            Vector2 m = new Vector2(0, 2 * _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds);
             foreach (Block block in _blocks.FindAll(item => !item.IsSleeping && !_currentFigure.Blocks.Contains(item)))
             {
                 //Figure out the gravity movement for the block.
                 if (IsMoveAllowed(block, m, out m, false)) { block.Position += m; }
                 else { block.IsSleeping = true; }
             }
+
+            //Add gravity to the current figure if it is not sleeping.
+            m = new Vector2(0, _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds);
+            if (IsMoveAllowed(_currentFigure, m, out m, false)) { _currentFigure.Move(m); }
+            else { _currentFigure.IsSleeping = true; }
 
             //Check for floor collision for all blocks not sleeping and not part of the current figure.
             foreach (Block block in _blocks.FindAll(item => !item.IsSleeping && !_currentFigure.Blocks.Contains(item)))
@@ -175,7 +176,7 @@ namespace Tetris
                 }
             }
 
-            //Check for wall and floor collisions.
+            //Check for wall and floor collisions for the current figure.
             _currentFigure.Left = MathHelper.Max(_currentFigure.Left, 0);
             _currentFigure.Right = MathHelper.Min(_currentFigure.Right, GraphicsDevice.Viewport.Width);
             if (!_currentFigure.IsSleeping)
@@ -185,6 +186,13 @@ namespace Tetris
                     _currentFigure.IsSleeping = true;
                     _currentFigure.Bottom = GraphicsDevice.Viewport.Height;
                 }
+            }
+
+            //All blocks that have a sleeping sibling should be put to sleep themselves.
+            List<Block> ls = _blocks.FindAll(block => !block.IsSleeping && block.Parent.IsSleeping);
+            if (ls.Count > 0)
+            {
+                ls.ForEach(block => block.IsSleeping = true);
             }
 
             //Check that all blocks is in one of the _cellSize-columns and, if sleeping, also is in one of the _cellSize-rows.
@@ -245,55 +253,6 @@ namespace Tetris
         }
 
         /// <summary>
-        /// See if a move is allowed by a block.
-        /// </summary>
-        /// <param name="block">The block to move.</param>
-        /// <param name="move">The desired move amount.</param>
-        /// <param name="assist">The move assist.</param>
-        /// <param name="allowNegativeY">Whether to allow the block to find a position above the current one.</param>
-        /// <returns>Whether the move is valid.</returns>
-        private bool IsMoveAllowed(Block block, Vector2 move, out Vector2 assist, bool allowNegativeY)
-        {
-            //Set some startup variables.
-            bool valid = false;
-            assist = move;
-
-            //Create a clone to project into the desired space.
-            Block proj = new Block(block);
-
-            //Try to find an acceptable position by granting the figure some leeway.
-            for (int x = 0; x <= Factory.WIDTH / 2; x++)
-            {
-                for (int y = 0; y <= Factory.HEIGHT / 2; y++)
-                {
-                    //Do four tests; (x, y), (x, -y), (-x, y), (-x, -y).
-                    for (int n = 0; n < 4; n++)
-                    {
-                        //Decide upon the x, y configuration.
-                        Vector2 config = Vector2.Zero;
-                        switch (n)
-                        {
-                            case 0: { config = new Vector2(x, y); break; }
-                            case 1: { config = allowNegativeY ? new Vector2(x, -y) : new Vector2(x, y); break; }
-                            case 2: { config = new Vector2(-x, y); break; }
-                            case 3: { config = allowNegativeY ? new Vector2(-x, -y) : new Vector2(-x, y); break; }
-                        }
-
-                        //Project the current block to the new position and see whether the move was valid.
-                        proj.Position += move + config;
-                        valid = !_blocks.Exists(b => b != block && b.Intersects(proj));
-                        proj.Position -= move + config;
-
-                        //If the move was valid, stop here.
-                        if (valid) { assist = move + config; return valid; }
-                    }
-                }
-            }
-
-            //Return the result (Hint: fail).
-            return valid;
-        }
-        /// <summary>
         /// See if a move is allowed by a figure.
         /// </summary>
         /// <param name="figure">The figure to move.</param>
@@ -301,14 +260,11 @@ namespace Tetris
         /// <param name="assist">The move assist.</param>
         /// <param name="allowNegativeY">Whether to allow the figure to find a position above the current one.</param>
         /// <returns>Whether the move is valid.</returns>
-        private bool IsMoveAllowed(Figure figure, Vector2 move, out Vector2 assist, bool allowNegativeY)
+        private bool IsMoveAllowed(IMovable entity, Vector2 move, out Vector2 assist, bool allowNegativeY)
         {
             //Set some startup variables.
             bool valid = false;
             assist = move;
-
-            //Create a clone to project into the desired space.
-            Figure proj = new Figure(figure) { Left = figure.Left, Bottom = figure.Bottom };
 
             //Try to find an acceptable position by granting the figure some leeway.
             for (int x = 0; x <= Factory.WIDTH / 2; x++)
@@ -329,9 +285,9 @@ namespace Tetris
                         }
 
                         //Project the current figure to the new position and see whether the move was valid.
-                        proj.Move(move + config);
-                        valid = !_blocks.Exists(block => !figure.Blocks.Contains(block) && proj.Intersects(block));
-                        proj.Move(-(move + config));
+                        entity.Move(move + config);
+                        valid = !_blocks.Exists(block => entity.IsIntersecting(block));
+                        entity.Move(-(move + config));
 
                         //If the move was valid, stop here.
                         if (valid) { assist = move + config; return valid; }
@@ -382,7 +338,7 @@ namespace Tetris
                 }
 
                 //If the row is complete, save it to the main list.
-                //TODO: Note that a multiple blocks on the same position will break this check.
+                //TODO: Note that multiple blocks on the same position will break this check.
                 if (row.Count == colCount) { rows.Add(row); }
             }
 
