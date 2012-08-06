@@ -16,7 +16,7 @@ namespace Tetris
         /// </summary>
         /// <param name="entity">The other IMovable entity.</param>
         /// <returns>Whether the two entities are currently intersecting.</returns>
-        bool IsIntersecting(IMovable entity);
+        bool Intersects(IMovable entity);
         /// <summary>
         /// Find out whether this IMovable entity contains a vector.
         /// </summary>
@@ -34,9 +34,9 @@ namespace Tetris
         /// <returns></returns>
         Rectangle ToRectangle();
         /// <summary>
-        /// The IMovable entity's parent.
+        /// The IMovable entity's figure parent.
         /// </summary>
-        IMovable Parent { get; set; }
+        Figure Parent { get; set; }
         /// <summary>
         /// If the IMovable entity is sleeping and not moving.
         /// </summary>

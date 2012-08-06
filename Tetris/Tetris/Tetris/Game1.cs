@@ -154,7 +154,7 @@ namespace Tetris
 
             //Add gravity to all blocks not sleeping and not part of the current figure.
             Vector2 m = new Vector2(0, 2 * _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            foreach (Block block in _blocks.FindAll(item => !item.IsSleeping && !_currentFigure.Blocks.Contains(item)))
+            foreach (Block block in _blocks.FindAll(item => !item.IsSleeping && item.Parent != _currentFigure))
             {
                 //Figure out the gravity movement for the block.
                 if (IsMoveAllowed(block, m, out m, false)) { block.Position += m; }
@@ -167,7 +167,7 @@ namespace Tetris
             else { _currentFigure.IsSleeping = true; }
 
             //Check for floor collision for all blocks not sleeping and not part of the current figure.
-            foreach (Block block in _blocks.FindAll(item => !item.IsSleeping && !_currentFigure.Blocks.Contains(item)))
+            foreach (Block block in _blocks.FindAll(item => !item.IsSleeping && item.Parent != _currentFigure))
             {
                 if (block.Position.Y + block.Height >= GraphicsDevice.Viewport.Height)
                 {
@@ -190,10 +190,7 @@ namespace Tetris
 
             //All blocks that have a sleeping sibling should be put to sleep themselves.
             List<Block> ls = _blocks.FindAll(block => !block.IsSleeping && block.Parent.IsSleeping);
-            if (ls.Count > 0)
-            {
-                ls.ForEach(block => block.IsSleeping = true);
-            }
+            if (ls.Count > 0) { ls.ForEach(block => block.IsSleeping = true); }
 
             //Check that all blocks is in one of the _cellSize-columns and, if sleeping, also is in one of the _cellSize-rows.
             foreach (Block block in _blocks)
@@ -286,7 +283,7 @@ namespace Tetris
 
                         //Project the current figure to the new position and see whether the move was valid.
                         entity.Move(move + config);
-                        valid = !_blocks.Exists(block => entity.IsIntersecting(block));
+                        valid = !_blocks.Exists(block => entity.Intersects(block));
                         entity.Move(-(move + config));
 
                         //If the move was valid, stop here.
@@ -343,7 +340,7 @@ namespace Tetris
             }
 
             //Remove all completed rows, wake all blocks up and sort them by position.
-            rows.ForEach(list => list.ForEach(block => _blocks.Remove(block)));
+            rows.ForEach(list => list.ForEach(block => { _blocks.Remove(block); block.Parent.RemoveBlock(block); }));
             if (rows.Count > 0) { _blocks.ForEach(block => block.IsSleeping = false); }
             _blocks.Sort((x, y) => Comparer<float>.Default.Compare(y.Position.Y, x.Position.Y));
         }

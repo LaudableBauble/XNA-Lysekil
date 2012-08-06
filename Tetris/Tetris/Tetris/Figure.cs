@@ -10,7 +10,8 @@ namespace Tetris
     /// </summary>
     public class Figure : IMovable
     {
-        public IMovable Parent { get { return null; } set { } }
+        #region Properties
+        public Figure Parent { get { return null; } set { } }
         public bool IsSleeping
         {
             get { return Blocks.Exists(b => b.IsSleeping); }
@@ -25,6 +26,85 @@ namespace Tetris
         public List<Block> Blocks { get; set; }
         public Block CenterBlock { get; set; }
 
+        /// <summary>
+        /// The leftmost x-coordinate of the figure.
+        /// </summary>
+        public float Left
+        {
+            get
+            {
+                if (Blocks.Count == 0) { return 0; }
+                float left = Blocks[0].Position.X;
+                Blocks.ForEach(item => left = item.Position.X < left ? item.Position.X : left);
+                return (float)Math.Round(left);
+            }
+            set
+            {
+                Block left = Blocks[0];
+                Blocks.ForEach(item => left = item.Position.X < left.Position.X ? item : left);
+                Move(new Vector2(value - left.Position.X, 0));
+            }
+        }
+        /// <summary>
+        /// The rightmost x-coordinate of the figure.
+        /// </summary>
+        public float Right
+        {
+            get
+            {
+                if (Blocks.Count == 0) { return 0; }
+                float right = Blocks[0].Position.X + Blocks[0].Width;
+                Blocks.ForEach(item => right = item.Position.X + item.Width > right ? item.Position.X + item.Width : right);
+                return (float)Math.Round(right);
+            }
+            set
+            {
+                Block right = Blocks[0];
+                Blocks.ForEach(item => right = item.Position.X + item.Width > right.Position.X + right.Width ? item : right);
+                Move(new Vector2(value - (right.Position.X + right.Width), 0));
+            }
+        }
+        /// <summary>
+        /// The bottom of the figure, ie. the greatest y-coordinate.
+        /// </summary>
+        public float Bottom
+        {
+            get
+            {
+                if (Blocks.Count == 0) { return 0; }
+                float bottom = Blocks[0].Position.Y;
+                Blocks.ForEach(item => bottom = item.Position.Y + item.Height > bottom ? item.Position.Y + item.Height : bottom);
+                return (float)Math.Round(bottom);
+            }
+            set
+            {
+                Block bottom = Blocks[0];
+                Blocks.ForEach(item => bottom = item.Position.Y + item.Height > bottom.Position.Y + bottom.Height ? item : bottom);
+                Move(new Vector2(0, value - (bottom.Position.Y + bottom.Height)));
+            }
+        }
+        /// <summary>
+        /// The top of the figure, ie. the smallest y-coordinate.
+        /// </summary>
+        public float Top
+        {
+            get
+            {
+                if (Blocks.Count == 0) { return 0; }
+                float top = Blocks[0].Position.Y;
+                Blocks.ForEach(item => top = item.Position.Y < top ? item.Position.Y : top);
+                return (float)Math.Round(top);
+            }
+            set
+            {
+                Block top = Blocks[0];
+                Blocks.ForEach(item => top = item.Position.Y < top.Position.Y ? item : top);
+                Move(new Vector2(0, value - top.Position.Y));
+            }
+        }
+        #endregion
+
+        #region Constructors
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -44,7 +124,9 @@ namespace Tetris
             foreach (var block in figure.Blocks) { Blocks.Add(new Block(block)); }
             CenterBlock = figure.CenterBlock == null ? null : Blocks[figure.Blocks.IndexOf(figure.CenterBlock)];
         }
+        #endregion
 
+        #region Methods
         /// <summary>
         /// Draw the figure.
         /// </summary>
@@ -79,45 +161,6 @@ namespace Tetris
         {
             Blocks.Remove(block);
             block.Parent = null;
-        }
-        /// <summary>
-        /// Move the figure by a specified amount.
-        /// </summary>
-        /// <param name="amount">The amount to move.</param>
-        public void Move(Vector2 amount)
-        {
-            Blocks.ForEach(item => item.Position += amount);
-        }
-        /// <summary>
-        /// Whether a block intersects with this figure.
-        /// </summary>
-        /// <param name="block">The block to check for intersection.</param>
-        /// <returns>Whether the block intersected with this figure.</returns>
-        public bool Intersects(Block block)
-        {
-            return Blocks.Exists(item => item.Intersects(block));
-        }
-        /// <summary>
-        /// Whether a figure intersected with this figure.
-        /// </summary>
-        /// <param name="figure">The other figure.</param>
-        /// <returns>Whether the figures intersected.</returns>
-        public bool Intersects(Figure figure)
-        {
-            return Blocks.Exists(figure.Intersects);
-        }
-        public bool IsIntersecting(IMovable entity)
-        {
-            return entity != this && Blocks.Exists(block => block.IsIntersecting(entity));
-        }
-        /// <summary>
-        /// Whether this figure contains a vector.
-        /// </summary>
-        /// <param name="v">The vector.</param>
-        /// <returns>Whether this figure contains a vector.</returns>
-        public bool Contains(Vector2 v)
-        {
-            return Blocks.Exists(item => item.Contains(v));
         }
         /// <summary>
         /// Get the blocks that contain a specific vector.
@@ -157,82 +200,25 @@ namespace Tetris
                 }
             }
         }
+
+        #region IMovable
+        public void Move(Vector2 amount)
+        {
+            Blocks.ForEach(item => item.Position += amount);
+        }
+        public bool Intersects(IMovable entity)
+        {
+            return entity != this && Blocks.Exists(block => block.Intersects(entity));
+        }
+        public bool Contains(Vector2 v)
+        {
+            return Blocks.Exists(item => item.Contains(v));
+        }
         public Rectangle ToRectangle()
         {
             return new Rectangle((int)Left, (int)Top, (int)(Right - Left), (int)(Bottom - Top));
         }
-
-        /// <summary>
-        /// The leftmost x-coordinate of the figure.
-        /// </summary>
-        public float Left
-        {
-            get
-            {
-                float left = Blocks[0].Position.X;
-                Blocks.ForEach(item => left = item.Position.X < left ? item.Position.X : left);
-                return (float)Math.Round(left);
-            }
-            set
-            {
-                Block left = Blocks[0];
-                Blocks.ForEach(item => left = item.Position.X < left.Position.X ? item : left);
-                Move(new Vector2(value - left.Position.X, 0));
-            }
-        }
-        /// <summary>
-        /// The rightmost x-coordinate of the figure.
-        /// </summary>
-        public float Right
-        {
-            get
-            {
-                float right = Blocks[0].Position.X + Blocks[0].Width;
-                Blocks.ForEach(item => right = item.Position.X + item.Width > right ? item.Position.X + item.Width : right);
-                return (float)Math.Round(right);
-            }
-            set
-            {
-                Block right = Blocks[0];
-                Blocks.ForEach(item => right = item.Position.X + item.Width > right.Position.X + right.Width ? item : right);
-                Move(new Vector2(value - (right.Position.X + right.Width), 0));
-            }
-        }
-        /// <summary>
-        /// The bottom of the figure, ie. the greatest y-coordinate.
-        /// </summary>
-        public float Bottom
-        {
-            get
-            {
-                float bottom = Blocks[0].Position.Y;
-                Blocks.ForEach(item => bottom = item.Position.Y + item.Height > bottom ? item.Position.Y + item.Height : bottom);
-                return (float)Math.Round(bottom);
-            }
-            set
-            {
-                Block bottom = Blocks[0];
-                Blocks.ForEach(item => bottom = item.Position.Y + item.Height > bottom.Position.Y + bottom.Height ? item : bottom);
-                Move(new Vector2(0, value - (bottom.Position.Y + bottom.Height)));
-            }
-        }
-        /// <summary>
-        /// The top of the figure, ie. the smallest y-coordinate.
-        /// </summary>
-        public float Top
-        {
-            get
-            {
-                float top = Blocks[0].Position.Y;
-                Blocks.ForEach(item => top = item.Position.Y < top ? item.Position.Y : top);
-                return (float)Math.Round(top);
-            }
-            set
-            {
-                Block top = Blocks[0];
-                Blocks.ForEach(item => top = item.Position.Y < top.Position.Y ? item : top);
-                Move(new Vector2(0, value - top.Position.Y));
-            }
-        }
+        #endregion
+        #endregion
     }
 }

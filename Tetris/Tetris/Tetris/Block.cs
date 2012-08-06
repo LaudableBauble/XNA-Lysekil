@@ -9,13 +9,16 @@ namespace Tetris
     /// </summary>
     public class Block : IMovable
     {
-        public IMovable Parent { get; set; }
+        #region Properties
+        public Figure Parent { get; set; }
         public Vector2 Position { get; set; }
         public Color Color { get; set; }
         public float Width { get; set; }
         public float Height { get; set; }
         public bool IsSleeping { get; set; }
+        #endregion
 
+        #region Constructors
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -40,7 +43,9 @@ namespace Tetris
             Height = block.Height;
             IsSleeping = block.IsSleeping;
         }
+        #endregion
 
+        #region Methods
         /// <summary>
         /// Draw the block.
         /// </summary>
@@ -58,26 +63,12 @@ namespace Tetris
                 new Vector2(Width / texture.Bounds.Width, Height / texture.Bounds.Height), SpriteEffects.None, 0);
         }
 
-        /// <summary>
-        /// Whether two blocks intersect each other.
-        /// </summary>
-        /// <param name="block">The other block.</param>
-        /// <returns>Whether they intersected each other.</returns>
-        public bool Intersects(Block block)
-        {
-            return new Rectangle((int)Position.X, (int)Position.Y, (int)Width, (int)Height).Intersects(
-                new Rectangle((int)block.Position.X, (int)block.Position.Y, (int)block.Width, (int)block.Height));
-        }
-        /// <summary>
-        /// Whether this block contains a vector.
-        /// </summary>
-        /// <param name="v">The vector.</param>
-        /// <returns>Whether this block contains a vector.</returns>
+        #region IMovable
         public bool Contains(Vector2 v)
         {
             return new Rectangle((int)Position.X, (int)Position.Y, (int)Width, (int)Height).Contains((int)v.X, (int)v.Y);
         }
-        public bool IsIntersecting(IMovable entity)
+        public bool Intersects(IMovable entity)
         {
             return this != entity && entity.Parent != Parent && ToRectangle().Intersects(entity.ToRectangle());
         }
@@ -89,5 +80,7 @@ namespace Tetris
         {
             return new Rectangle((int)Position.X, (int)Position.Y, (int)Width, (int)Height);
         }
+        #endregion
+        #endregion
     }
 }
