@@ -71,7 +71,7 @@ namespace Tetris
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            _square = Content.Load<Texture2D>("Square[2]");
+            _square = Content.Load<Texture2D>("Square[3]");
             _tintEffect = Content.Load<Effect>("BlockTint");
             _font = Content.Load<SpriteFont>("Debug");
         }
@@ -90,6 +90,15 @@ namespace Tetris
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            /*
+             * 1. Handle input.
+             * 2. Gravity and collision check.
+             * 3. Viewport bound check.
+             * 4. Cell alignment.
+             * 5. Remove completed rows.
+             * 6. Check if to launch new figure.
+             */
+
             //Read the keyboard and gamepad.
             _input.Update();
 
@@ -132,22 +141,22 @@ namespace Tetris
             {
                 if (_input.IsNewKeyPress(Keys.Up))
                 {
-                    if (IsRotationAllowed()) { _currentFigure.Rotate(); }
+                    if (Helper.IsRotationAllowed(_currentFigure, _blocks)) { _currentFigure.Rotate(); }
                 }
                 else if (_input.IsNewKeyPress(Keys.Right))
                 {
                     Vector2 move = new Vector2(Factory.WIDTH, 0);
-                    if (IsMoveAllowed(_currentFigure, move, out move, true)) { _currentFigure.Move(move); }
+                    if (Helper.IsMoveAllowed(_currentFigure, move, _blocks, out move, true)) { _currentFigure.Move(move); }
                 }
                 else if (_input.IsNewKeyPress(Keys.Left))
                 {
                     Vector2 move = new Vector2(-Factory.WIDTH, 0);
-                    if (IsMoveAllowed(_currentFigure, move, out move, true)) { _currentFigure.Move(move); }
+                    if (Helper.IsMoveAllowed(_currentFigure, move, _blocks, out move, true)) { _currentFigure.Move(move); }
                 }
                 else if (_input.IsKeyDown(Keys.Down))
                 {
                     Vector2 move = new Vector2(0, _gravity);
-                    if (IsMoveAllowed(_currentFigure, move, out move, false)) { _currentFigure.Move(move); }
+                    if (Helper.IsMoveAllowed(_currentFigure, move, _blocks, out move, false)) { _currentFigure.Move(move); }
                 }
             }
             #endregion
@@ -157,13 +166,13 @@ namespace Tetris
             foreach (Block block in _blocks.FindAll(item => !item.IsSleeping && item.Parent != _currentFigure))
             {
                 //Figure out the gravity movement for the block.
-                if (IsMoveAllowed(block, m, out m, false)) { block.Position += m; }
+                if (Helper.IsMoveAllowed(block, m, _blocks, out m, false)) { block.Position += m; }
                 else { block.IsSleeping = true; }
             }
 
             //Add gravity to the current figure if it is not sleeping.
             m = new Vector2(0, _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            if (IsMoveAllowed(_currentFigure, m, out m, false)) { _currentFigure.Move(m); }
+            if (Helper.IsMoveAllowed(_currentFigure, m, _blocks, out m, false)) { _currentFigure.Move(m); }
             else { _currentFigure.IsSleeping = true; }
 
             //Check for floor collision for all blocks not sleeping and not part of the current figure.
@@ -249,65 +258,7 @@ namespace Tetris
             base.Draw(gameTime);
         }
 
-        /// <summary>
-        /// See if a move is allowed by a figure.
-        /// </summary>
-        /// <param name="figure">The figure to move.</param>
-        /// <param name="move">The desired move amount.</param>
-        /// <param name="assist">The move assist.</param>
-        /// <param name="allowNegativeY">Whether to allow the figure to find a position above the current one.</param>
-        /// <returns>Whether the move is valid.</returns>
-        private bool IsMoveAllowed(IMovable entity, Vector2 move, out Vector2 assist, bool allowNegativeY)
-        {
-            //Set some startup variables.
-            bool valid = false;
-            assist = move;
-
-            //Try to find an acceptable position by granting the figure some leeway.
-            for (int x = 0; x <= Factory.WIDTH / 2; x++)
-            {
-                for (int y = 0; y <= Factory.HEIGHT / 2; y++)
-                {
-                    //Do four tests; (x, y), (x, -y), (-x, y), (-x, -y).
-                    for (int n = 0; n < 4; n++)
-                    {
-                        //Decide upon the x, y configuration.
-                        Vector2 config = Vector2.Zero;
-                        switch (n)
-                        {
-                            case 0: { config = new Vector2(x, y); break; }
-                            case 1: { config = allowNegativeY ? new Vector2(x, -y) : new Vector2(x, y); break; }
-                            case 2: { config = new Vector2(-x, y); break; }
-                            case 3: { config = allowNegativeY ? new Vector2(-x, -y) : new Vector2(-x, y); break; }
-                        }
-
-                        //Project the current figure to the new position and see whether the move was valid.
-                        entity.Move(move + config);
-                        valid = !_blocks.Exists(block => entity.Intersects(block));
-                        entity.Move(-(move + config));
-
-                        //If the move was valid, stop here.
-                        if (valid) { assist = move + config; return valid; }
-                    }
-                }
-            }
-
-            //Return the result (Hint: fail).
-            return valid;
-        }
-        /// <summary>
-        /// See if a rotation is allowed by a figure.
-        /// </summary>
-        /// <returns>Whether the rotation is valid.</returns>
-        private bool IsRotationAllowed()
-        {
-            //Project the current figure to the new position.
-            var proj = new Figure(_currentFigure) { Left = _currentFigure.Left, Bottom = _currentFigure.Bottom };
-            proj.Rotate();
-
-            //Return whether the movement is valid.
-            return !_blocks.Exists(block => !_currentFigure.Blocks.Contains(block) && proj.Intersects(block));
-        }
+        
         /// <summary>
         /// Remove any completed rows.
         /// </summary>

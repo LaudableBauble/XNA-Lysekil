@@ -40,6 +40,7 @@ namespace Tetris
             }
             set
             {
+                if (Blocks.Count == 0) { return; }
                 Block left = Blocks[0];
                 Blocks.ForEach(item => left = item.Position.X < left.Position.X ? item : left);
                 Move(new Vector2(value - left.Position.X, 0));
@@ -59,6 +60,7 @@ namespace Tetris
             }
             set
             {
+                if (Blocks.Count == 0) { return; }
                 Block right = Blocks[0];
                 Blocks.ForEach(item => right = item.Position.X + item.Width > right.Position.X + right.Width ? item : right);
                 Move(new Vector2(value - (right.Position.X + right.Width), 0));
@@ -78,6 +80,7 @@ namespace Tetris
             }
             set
             {
+                if (Blocks.Count == 0) { return; }
                 Block bottom = Blocks[0];
                 Blocks.ForEach(item => bottom = item.Position.Y + item.Height > bottom.Position.Y + bottom.Height ? item : bottom);
                 Move(new Vector2(0, value - (bottom.Position.Y + bottom.Height)));
@@ -97,6 +100,7 @@ namespace Tetris
             }
             set
             {
+                if (Blocks.Count == 0) { return; }
                 Block top = Blocks[0];
                 Blocks.ForEach(item => top = item.Position.Y < top.Position.Y ? item : top);
                 Move(new Vector2(0, value - top.Position.Y));
