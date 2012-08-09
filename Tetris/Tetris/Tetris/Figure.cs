@@ -14,7 +14,7 @@ namespace Tetris
         public Figure Parent { get { return null; } set { } }
         public bool IsSleeping
         {
-            get { return Blocks.Exists(b => b.IsSleeping); }
+            get { return Blocks.Count == 0 || Blocks.Exists(b => b.IsSleeping); }
             set { Blocks.ForEach(b => b.IsSleeping = value); }
         }
         private Color _color;

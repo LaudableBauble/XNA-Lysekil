@@ -74,7 +74,9 @@ namespace Tetris
         }
         public void Move(Vector2 amount)
         {
-            Position += amount;
+            //If this block has a valid parent, move from there instead.
+            if (Parent != null) { Parent.Move(amount); }
+            else { Position += amount; }
         }
         public Rectangle ToRectangle()
         {

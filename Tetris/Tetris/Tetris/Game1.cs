@@ -52,8 +52,8 @@ namespace Tetris
             _gameOver = false;
 
             //Add the first figure.
-            _currentFigure = Factory.RandomFigure();
-            _currentFigure.Move(new Vector2(Factory.WIDTH * 15, 0));
+            _currentFigure = Helper.RandomFigure();
+            _currentFigure.Move(new Vector2(Helper.WIDTH * 15, 0));
             _blocks.AddRange(_currentFigure.Blocks);
 
             //Set the debug figure.
@@ -117,20 +117,23 @@ namespace Tetris
             if (_input.IsNewKeyPress(Keys.P)) { _gravity = _gravity == 0 ? 16 : 0; }
             #endregion
 
+            //Quit the cycle if game over.
+            if (_gameOver) { return; }
+
             //Check if a new figure block should be launched.
-            if (_currentFigure.IsSleeping && !_gameOver)
+            if (_currentFigure.IsSleeping)
             {
                 //Check for game over.
                 if (_blocks.Exists(b => !_currentFigure.Blocks.Contains(b) &&
-                    b.Contains(new Vector2(Math.Min(Factory.WIDTH * 15 + 1, GraphicsDevice.Viewport.Width - 1), 1))))
+                    b.Contains(new Vector2(Math.Min(Helper.WIDTH * 15 + 1, GraphicsDevice.Viewport.Width - 1), 1))))
                 {
                     _gameOver = true;
                 }
                 else
                 {
-                    _currentFigure = Factory.RandomFigure();
+                    _currentFigure = Helper.RandomFigure();
                     _debugFigure = _currentFigure;
-                    _currentFigure.Move(new Vector2(Factory.WIDTH * 15, 0));
+                    _currentFigure.Move(new Vector2(Helper.WIDTH * 15, 0));
                     _blocks.AddRange(_currentFigure.Blocks);
                 }
             }
@@ -145,12 +148,12 @@ namespace Tetris
                 }
                 else if (_input.IsNewKeyPress(Keys.Right))
                 {
-                    Vector2 move = new Vector2(Factory.WIDTH, 0);
+                    Vector2 move = new Vector2(Helper.WIDTH, 0);
                     if (Helper.IsMoveAllowed(_currentFigure, move, _blocks, out move, true)) { _currentFigure.Move(move); }
                 }
                 else if (_input.IsNewKeyPress(Keys.Left))
                 {
-                    Vector2 move = new Vector2(-Factory.WIDTH, 0);
+                    Vector2 move = new Vector2(-Helper.WIDTH, 0);
                     if (Helper.IsMoveAllowed(_currentFigure, move, _blocks, out move, true)) { _currentFigure.Move(move); }
                 }
                 else if (_input.IsKeyDown(Keys.Down))
@@ -175,27 +178,19 @@ namespace Tetris
             if (Helper.IsMoveAllowed(_currentFigure, m, _blocks, out m, false)) { _currentFigure.Move(m); }
             else { _currentFigure.IsSleeping = true; }
 
-            //Check for floor collision for all blocks not sleeping and not part of the current figure.
-            foreach (Block block in _blocks.FindAll(item => !item.IsSleeping && item.Parent != _currentFigure))
+            //Check for floor collision for all blocks not sleeping.
+            foreach (Block block in _blocks.FindAll(item => !item.IsSleeping))
             {
                 if (block.Position.Y + block.Height >= GraphicsDevice.Viewport.Height)
                 {
                     block.IsSleeping = true;
-                    block.Position = new Vector2(block.Position.X, GraphicsDevice.Viewport.Height - block.Height);
+                    block.Move(new Vector2(0, GraphicsDevice.Viewport.Height - (block.Position.Y + block.Height)));
                 }
             }
 
             //Check for wall and floor collisions for the current figure.
             _currentFigure.Left = MathHelper.Max(_currentFigure.Left, 0);
             _currentFigure.Right = MathHelper.Min(_currentFigure.Right, GraphicsDevice.Viewport.Width);
-            if (!_currentFigure.IsSleeping)
-            {
-                if (_currentFigure.Bottom >= GraphicsDevice.Viewport.Height)
-                {
-                    _currentFigure.IsSleeping = true;
-                    _currentFigure.Bottom = GraphicsDevice.Viewport.Height;
-                }
-            }
 
             //All blocks that have a sleeping sibling should be put to sleep themselves.
             List<Block> ls = _blocks.FindAll(block => !block.IsSleeping && block.Parent.IsSleeping);
@@ -204,19 +199,14 @@ namespace Tetris
             //Check that all blocks is in one of the _cellSize-columns and, if sleeping, also is in one of the _cellSize-rows.
             foreach (Block block in _blocks)
             {
-                if ((block.Position.X % Factory.WIDTH).CompareTo(0) != 0)
+                if ((block.Position.X % Helper.WIDTH).CompareTo(0) != 0)
                 {
-                    block.Position = new Vector2((float)(Factory.WIDTH * (int)Math.Round(block.Position.X / Factory.WIDTH)), block.Position.Y);
+                    block.Position = new Vector2((float)(Helper.WIDTH * (int)Math.Round(block.Position.X / Helper.WIDTH)), block.Position.Y);
                 }
-                if ((block.Position.Y % Factory.HEIGHT).CompareTo(0) != 0 && block.IsSleeping)
+                if ((block.Position.Y % Helper.HEIGHT).CompareTo(0) != 0 && block.IsSleeping)
                 {
-                    block.Position = new Vector2(block.Position.X, (float)(Factory.HEIGHT * (int)Math.Round(block.Position.Y / Factory.HEIGHT)));
+                    block.Position = new Vector2(block.Position.X, (float)(Helper.HEIGHT * (int)Math.Round(block.Position.Y / Helper.HEIGHT)));
                 }
-            }
-            //Check that currentFigure is in one of the _cellSize-rows.
-            if ((_currentFigure.Bottom % Factory.HEIGHT).CompareTo(0) != 0 && _currentFigure.IsSleeping)
-            {
-                _currentFigure.Bottom = (float)(Factory.HEIGHT * (int)Math.Round(_currentFigure.Bottom / Factory.HEIGHT));
             }
 
             //Remove all completed rows.
@@ -251,22 +241,21 @@ namespace Tetris
             _spriteBatch.DrawString(_font, "Right: " + _debugFigure.Right, new Vector2(10, 60), Color.Black);
             _spriteBatch.DrawString(_font, "Top: " + _debugFigure.Top, new Vector2(10, 75), Color.Black);
             _spriteBatch.DrawString(_font, "Bottom: " + _debugFigure.Bottom, new Vector2(10, 90), Color.Black);
-            _spriteBatch.DrawString(_font, "Offset: " + _debugFigure.Left % Factory.WIDTH, new Vector2(10, 105), Color.Black);
+            _spriteBatch.DrawString(_font, "Offset: " + _debugFigure.Left % Helper.WIDTH, new Vector2(10, 105), Color.Black);
             _spriteBatch.DrawString(_font, "IsSleeping: " + _debugFigure.IsSleeping, new Vector2(10, 120), Color.Black);
             _spriteBatch.End();
 
             base.Draw(gameTime);
         }
 
-        
         /// <summary>
         /// Remove any completed rows.
         /// </summary>
         private void RemoveCompletedRows()
         {
             //The number of rows and columns.
-            int rowCount = GraphicsDevice.Viewport.Height / (int)Factory.HEIGHT;
-            int colCount = GraphicsDevice.Viewport.Width / (int)Factory.WIDTH;
+            int rowCount = GraphicsDevice.Viewport.Height / (int)Helper.HEIGHT;
+            int colCount = GraphicsDevice.Viewport.Width / (int)Helper.WIDTH;
 
             //The list to rule them all.
             List<List<Block>> rows = new List<List<Block>>();
@@ -280,8 +269,8 @@ namespace Tetris
                 for (int x = 0; x < colCount; x++)
                 {
                     //Get all blocks on the given row.
-                    Vector2 pos = new Vector2(Factory.WIDTH * (colCount - x) - (Factory.WIDTH / 2),
-                        Factory.HEIGHT * (rowCount - y) - (Factory.HEIGHT / 2));
+                    Vector2 pos = new Vector2(Helper.WIDTH * (colCount - x) - (Helper.WIDTH / 2),
+                        Helper.HEIGHT * (rowCount - y) - (Helper.HEIGHT / 2));
                     _blocks.ForEach(item => { if (item.Contains(pos)) { row.Add(item); } });
                 }
 
