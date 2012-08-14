@@ -8,21 +8,11 @@ namespace Tetris
     /// <summary>
     /// A figure is a shape built upon a multitude of blocks.
     /// </summary>
-    public class Figure : IMovable
+    public class Figure
     {
         #region Properties
-        public Figure Parent { get { return null; } set { } }
-        public bool IsSleeping
-        {
-            get { return Blocks.Count == 0 || Blocks.Exists(b => b.IsSleeping); }
-            set { Blocks.ForEach(b => b.IsSleeping = value); }
-        }
-        private Color _color;
-        public Color Color
-        {
-            get { return _color; }
-            set { _color = value; if (Blocks != null) { Blocks.ForEach(b => b.Color = value); } }
-        }
+        public bool IsSleeping { get; set; }
+        public Color Color { get; set; }
         public List<Block> Blocks { get; set; }
         public Block CenterBlock { get; set; }
 
@@ -54,16 +44,16 @@ namespace Tetris
             get
             {
                 if (Blocks.Count == 0) { return 0; }
-                float right = Blocks[0].Position.X + Blocks[0].Width;
-                Blocks.ForEach(item => right = item.Position.X + item.Width > right ? item.Position.X + item.Width : right);
+                float right = Blocks[0].Position.X + Helper.WIDTH;
+                Blocks.ForEach(item => right = item.Position.X + Helper.WIDTH > right ? item.Position.X + Helper.WIDTH : right);
                 return (float)Math.Round(right);
             }
             set
             {
                 if (Blocks.Count == 0) { return; }
                 Block right = Blocks[0];
-                Blocks.ForEach(item => right = item.Position.X + item.Width > right.Position.X + right.Width ? item : right);
-                Move(new Vector2(value - (right.Position.X + right.Width), 0));
+                Blocks.ForEach(item => right = item.Position.X + Helper.WIDTH > right.Position.X + Helper.WIDTH ? item : right);
+                Move(new Vector2(value - (right.Position.X + Helper.WIDTH), 0));
             }
         }
         /// <summary>
@@ -75,15 +65,15 @@ namespace Tetris
             {
                 if (Blocks.Count == 0) { return 0; }
                 float bottom = Blocks[0].Position.Y;
-                Blocks.ForEach(item => bottom = item.Position.Y + item.Height > bottom ? item.Position.Y + item.Height : bottom);
+                Blocks.ForEach(item => bottom = item.Position.Y + Helper.HEIGHT > bottom ? item.Position.Y + Helper.HEIGHT : bottom);
                 return (float)Math.Round(bottom);
             }
             set
             {
                 if (Blocks.Count == 0) { return; }
                 Block bottom = Blocks[0];
-                Blocks.ForEach(item => bottom = item.Position.Y + item.Height > bottom.Position.Y + bottom.Height ? item : bottom);
-                Move(new Vector2(0, value - (bottom.Position.Y + bottom.Height)));
+                Blocks.ForEach(item => bottom = item.Position.Y + Helper.HEIGHT > bottom.Position.Y + Helper.HEIGHT ? item : bottom);
+                Move(new Vector2(0, value - (bottom.Position.Y + Helper.HEIGHT)));
             }
         }
         /// <summary>
@@ -155,7 +145,6 @@ namespace Tetris
         {
             Blocks.Add(block);
             block.Parent = this;
-            block.Color = Color;
         }
         /// <summary>
         /// Remove a block from the figure.
@@ -204,25 +193,18 @@ namespace Tetris
                 }
             }
         }
-
-        #region IMovable
         public void Move(Vector2 amount)
         {
             Blocks.ForEach(item => item.Position += amount);
         }
-        public bool Intersects(IMovable entity)
+        public bool Intersects(Block block)
         {
-            return entity != this && Blocks.Exists(block => block.Intersects(entity));
+            return block.Parent != this && Blocks.Exists(item => block.Intersects(item));
         }
         public bool Contains(Vector2 v)
         {
             return Blocks.Exists(item => item.Contains(v));
         }
-        public Rectangle ToRectangle()
-        {
-            return new Rectangle((int)Left, (int)Top, (int)(Right - Left), (int)(Bottom - Top));
-        }
-        #endregion
         #endregion
     }
 }

@@ -14,6 +14,7 @@ namespace Tetris
         private readonly GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _square;
+        private Texture2D _background;
         private SpriteFont _font;
         private List<Block> _blocks;
         private InputState _input;
@@ -40,9 +41,9 @@ namespace Tetris
             // TODO: Add your initialization logic here.
             this.IsMouseVisible = true;
 
-            // Window size
-            _graphics.PreferredBackBufferWidth = 16 * 20;
-            _graphics.PreferredBackBufferHeight = 16 * 40;
+            // Window size.
+            _graphics.PreferredBackBufferWidth = (int)Helper.WIDTH * 10;
+            _graphics.PreferredBackBufferHeight = (int)Helper.HEIGHT * 18;
             _graphics.ApplyChanges();
 
             //Initialize the game.
@@ -72,6 +73,7 @@ namespace Tetris
 
             // TODO: use this.Content to load your game content here
             _square = Content.Load<Texture2D>("Square[3]");
+            _background = Content.Load<Texture2D>("Tetris_Background[1]");
             _tintEffect = Content.Load<Effect>("BlockTint");
             _font = Content.Load<SpriteFont>("Debug");
         }
@@ -131,8 +133,7 @@ namespace Tetris
                 }
                 else
                 {
-                    _currentFigure = Helper.RandomFigure();
-                    _debugFigure = _currentFigure;
+                    _currentFigure = _debugFigure = Helper.RandomFigure();
                     _currentFigure.Move(new Vector2(Helper.WIDTH * 15, 0));
                     _blocks.AddRange(_currentFigure.Blocks);
                 }
@@ -164,50 +165,23 @@ namespace Tetris
             }
             #endregion
 
-            //Add gravity to all blocks not sleeping and not part of the current figure.
-            Vector2 m = new Vector2(0, 2 * _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            foreach (Block block in _blocks.FindAll(item => !item.IsSleeping && item.Parent != _currentFigure))
-            {
-                //Figure out the gravity movement for the block.
-                if (Helper.IsMoveAllowed(block, m, _blocks, out m, false)) { block.Position += m; }
-                else { block.IsSleeping = true; }
-            }
-
             //Add gravity to the current figure if it is not sleeping.
-            m = new Vector2(0, _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds);
+            Vector2 m = new Vector2(0, _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds);
             if (Helper.IsMoveAllowed(_currentFigure, m, _blocks, out m, false)) { _currentFigure.Move(m); }
             else { _currentFigure.IsSleeping = true; }
-
-            //Check for floor collision for all blocks not sleeping.
-            foreach (Block block in _blocks.FindAll(item => !item.IsSleeping))
-            {
-                if (block.Position.Y + block.Height >= GraphicsDevice.Viewport.Height)
-                {
-                    block.IsSleeping = true;
-                    block.Move(new Vector2(0, GraphicsDevice.Viewport.Height - (block.Position.Y + block.Height)));
-                }
-            }
 
             //Check for wall and floor collisions for the current figure.
             _currentFigure.Left = MathHelper.Max(_currentFigure.Left, 0);
             _currentFigure.Right = MathHelper.Min(_currentFigure.Right, GraphicsDevice.Viewport.Width);
-
-            //All blocks that have a sleeping sibling should be put to sleep themselves.
-            List<Block> ls = _blocks.FindAll(block => !block.IsSleeping && block.Parent.IsSleeping);
-            if (ls.Count > 0) { ls.ForEach(block => block.IsSleeping = true); }
-
-            //Check that all blocks is in one of the _cellSize-columns and, if sleeping, also is in one of the _cellSize-rows.
-            foreach (Block block in _blocks)
+            if (_currentFigure.Bottom >= GraphicsDevice.Viewport.Height)
             {
-                if ((block.Position.X % Helper.WIDTH).CompareTo(0) != 0)
-                {
-                    block.Position = new Vector2((float)(Helper.WIDTH * (int)Math.Round(block.Position.X / Helper.WIDTH)), block.Position.Y);
-                }
-                if ((block.Position.Y % Helper.HEIGHT).CompareTo(0) != 0 && block.IsSleeping)
-                {
-                    block.Position = new Vector2(block.Position.X, (float)(Helper.HEIGHT * (int)Math.Round(block.Position.Y / Helper.HEIGHT)));
-                }
+                _currentFigure.IsSleeping = true;
+                _currentFigure.Move(new Vector2(0, GraphicsDevice.Viewport.Height - _currentFigure.Bottom));
             }
+
+            //Make sure that the figure is in one of the designated cells.
+            _currentFigure.Left = Helper.WIDTH * (float)Math.Round(_currentFigure.Left / Helper.WIDTH);
+            if (_currentFigure.IsSleeping) { _currentFigure.Top = Helper.HEIGHT * (float)Math.Round(_currentFigure.Top / Helper.HEIGHT); }
 
             //Remove all completed rows.
             if (_currentFigure.IsSleeping) { RemoveCompletedRows(); }
@@ -227,6 +201,11 @@ namespace Tetris
             //Initialize the tint shader.
             _tintEffect.CurrentTechnique = _tintEffect.Techniques["ColorTint"];
             _tintEffect.CurrentTechnique.Passes[0].Apply();
+
+            //Draw background.
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(_background, Vector2.Zero, Color.White);
+            _spriteBatch.End();
 
             //Draw all figures.
             _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointWrap, null, null, _tintEffect);
@@ -279,10 +258,20 @@ namespace Tetris
                 if (row.Count == colCount) { rows.Add(row); }
             }
 
-            //Remove all completed rows, wake all blocks up and sort them by position.
-            rows.ForEach(list => list.ForEach(block => { _blocks.Remove(block); block.Parent.RemoveBlock(block); }));
-            if (rows.Count > 0) { _blocks.ForEach(block => block.IsSleeping = false); }
-            _blocks.Sort((x, y) => Comparer<float>.Default.Compare(y.Position.Y, x.Position.Y));
+            //If a complete row has been found, continue.
+            if (rows.Count > 0)
+            {
+                //Remove all completed rows.
+                rows.ForEach(list => list.ForEach(block => { _blocks.Remove(block); block.Parent.RemoveBlock(block); }));
+
+                //Find the lowest removed row, ie. the highest y-coordinate, and the amount to move the blocks above.
+                float y = rows[0][0].Position.Y;
+                Vector2 amount = new Vector2(0, Helper.HEIGHT * rows.Count);
+
+                //Find all relevant blocks and move them down.
+                List<Block> bl = _blocks.FindAll(block => block.Position.Y < y);
+                bl.ForEach(block => block.Position += amount);
+            }
         }
     }
 }

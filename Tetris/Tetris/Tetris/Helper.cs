@@ -44,10 +44,10 @@ namespace Tetris
             figure.Color = Color.Blue;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = Vector2.Zero });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, 0) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
+            figure.AddBlock(new Block() { Position = Vector2.Zero });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH, 0) });
+            figure.AddBlock(new Block() { Position = new Vector2(0, HEIGHT) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH, HEIGHT) });
 
             //Return the figure.
             return figure;
@@ -65,10 +65,10 @@ namespace Tetris
             figure.Color = Color.Red;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = Vector2.Zero });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT * 2) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT * 3) });
+            figure.AddBlock(new Block() { Position = Vector2.Zero });
+            figure.AddBlock(new Block() { Position = new Vector2(0, HEIGHT) });
+            figure.AddBlock(new Block() { Position = new Vector2(0, HEIGHT * 2) });
+            figure.AddBlock(new Block() { Position = new Vector2(0, HEIGHT * 3) });
 
             figure.CenterBlock = figure.Blocks[1];
 
@@ -88,10 +88,10 @@ namespace Tetris
             figure.Color = Color.Yellow;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = Vector2.Zero });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT * 2) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT * 2) });
+            figure.AddBlock(new Block() { Position = Vector2.Zero });
+            figure.AddBlock(new Block() { Position = new Vector2(0, HEIGHT) });
+            figure.AddBlock(new Block() { Position = new Vector2(0, HEIGHT * 2) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH, HEIGHT * 2) });
 
             //Set the center block.
             figure.CenterBlock = figure.Blocks[2];
@@ -112,10 +112,10 @@ namespace Tetris
             figure.Color = Color.Yellow;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, 0) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT * 2) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT * 2) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH, 0) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH, HEIGHT) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH, HEIGHT * 2) });
+            figure.AddBlock(new Block() { Position = new Vector2(0, HEIGHT * 2) });
 
             figure.CenterBlock = figure.Blocks[2];
 
@@ -135,10 +135,10 @@ namespace Tetris
             figure.Color = Color.Green;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, HEIGHT) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, 0) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH * 2, 0) });
+            figure.AddBlock(new Block() { Position = new Vector2(0, HEIGHT) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH, HEIGHT) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH, 0) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH * 2, 0) });
 
             figure.CenterBlock = figure.Blocks[2];
 
@@ -158,10 +158,10 @@ namespace Tetris
             figure.Color = Color.Green;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = Vector2.Zero });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, 0) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH * 2, HEIGHT) });
+            figure.AddBlock(new Block() { Position = Vector2.Zero });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH, 0) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH, HEIGHT) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH * 2, HEIGHT) });
 
             figure.CenterBlock = figure.Blocks[1];
 
@@ -181,10 +181,10 @@ namespace Tetris
             figure.Color = Color.Purple;
 
             //Add and create the blocks.
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(0, 0) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, 0) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH * 2, 0) });
-            figure.AddBlock(new Block() { Width = WIDTH, Height = HEIGHT, Position = new Vector2(WIDTH, HEIGHT) });
+            figure.AddBlock(new Block() { Position = new Vector2(0, 0) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH, 0) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH * 2, 0) });
+            figure.AddBlock(new Block() { Position = new Vector2(WIDTH, HEIGHT) });
 
             figure.CenterBlock = figure.Blocks[1];
 
@@ -199,7 +199,7 @@ namespace Tetris
         /// <param name="assist">The move assist.</param>
         /// <param name="allowNegativeY">Whether to allow the figure to find a position above the current one.</param>
         /// <returns>Whether the move is valid.</returns>
-        public static bool IsMoveAllowed(IMovable entity, Vector2 move, List<Block> blocks, out Vector2 assist, bool allowNegativeY)
+        public static bool IsMoveAllowed(Figure figure, Vector2 move, List<Block> blocks, out Vector2 assist, bool allowNegativeY)
         {
             //Set some startup variables.
             bool valid = false;
@@ -224,9 +224,9 @@ namespace Tetris
                         }
 
                         //Project the current figure to the new position and see whether the move was valid.
-                        entity.Move(move + config);
-                        valid = !blocks.Exists(block => entity.Intersects(block));
-                        entity.Move(-(move + config));
+                        figure.Move(move + config);
+                        valid = !blocks.Exists(block => figure.Intersects(block));
+                        figure.Move(-(move + config));
 
                         //If the move was valid, stop here.
                         if (valid) { assist = move + config; return valid; }
@@ -236,7 +236,7 @@ namespace Tetris
 
             //Return the result (Hint: fail).
             return valid;
-        }      
+        }
         /// <summary>
         /// See if a rotation is allowed by a figure.
         /// </summary>
@@ -249,6 +249,15 @@ namespace Tetris
 
             //Return whether the movement is valid.
             return !blocks.Exists(block => !figure.Blocks.Contains(block) && proj.Intersects(block));
+        }
+        /// <summary>
+        /// Define this block as a rectangle.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        /// <returns>A rectangle matching the block's bounds.</returns>
+        public static Rectangle ToRectangle(Block block)
+        {
+            return new Rectangle((int)block.Position.X, (int)block.Position.Y, (int)WIDTH, (int)HEIGHT);
         }
     }
 }

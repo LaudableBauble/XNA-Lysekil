@@ -7,15 +7,11 @@ namespace Tetris
     /// <summary>
     /// A block is a square piece capable of forming into more complex figures.
     /// </summary>
-    public class Block : IMovable
+    public class Block
     {
         #region Properties
         public Figure Parent { get; set; }
         public Vector2 Position { get; set; }
-        public Color Color { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool IsSleeping { get; set; }
         #endregion
 
         #region Constructors
@@ -26,10 +22,6 @@ namespace Tetris
         {
             Parent = null;
             Position = Vector2.Zero;
-            Color = Color.Crimson;
-            Width = 32;
-            Height = 32;
-            IsSleeping = false;
         }
         /// <summary>
         /// Cloning constructor.
@@ -38,10 +30,6 @@ namespace Tetris
         {
             Parent = block.Parent;
             Position = block.Position;
-            Color = block.Color;
-            Width = block.Width;
-            Height = block.Height;
-            IsSleeping = block.IsSleeping;
         }
         #endregion
 
@@ -55,34 +43,22 @@ namespace Tetris
         public void Draw(SpriteBatch spriteBatch, Texture2D texture, Effect effect)
         {
             //Set the color tint.
-            effect.Parameters["TintColor"].SetValue(Color.ToVector4());
+            effect.Parameters["TintColor"].SetValue(Parent.Color.ToVector4());
             effect.CurrentTechnique.Passes[0].Apply();
 
             //Draw all blocks.
             spriteBatch.Draw(texture, Position, null, Color.White, 0, Vector2.Zero,
-                new Vector2(Width / texture.Bounds.Width, Height / texture.Bounds.Height), SpriteEffects.None, 0);
+                new Vector2(Helper.WIDTH / texture.Bounds.Width, Helper.HEIGHT / texture.Bounds.Height), SpriteEffects.None, 0);
         }
 
-        #region IMovable
         public bool Contains(Vector2 v)
         {
-            return new Rectangle((int)Position.X, (int)Position.Y, (int)Width, (int)Height).Contains((int)v.X, (int)v.Y);
+            return Helper.ToRectangle(this).Contains((int)v.X, (int)v.Y);
         }
-        public bool Intersects(IMovable entity)
+        public bool Intersects(Block block)
         {
-            return this != entity && entity.Parent != Parent && ToRectangle().Intersects(entity.ToRectangle());
+            return this != block && block.Parent != Parent && Helper.ToRectangle(this).Intersects(Helper.ToRectangle(block));
         }
-        public void Move(Vector2 amount)
-        {
-            //If this block has a valid parent, move from there instead.
-            if (Parent != null) { Parent.Move(amount); }
-            else { Position += amount; }
-        }
-        public Rectangle ToRectangle()
-        {
-            return new Rectangle((int)Position.X, (int)Position.Y, (int)Width, (int)Height);
-        }
-        #endregion
         #endregion
     }
 }
