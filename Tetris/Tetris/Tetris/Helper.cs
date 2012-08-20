@@ -8,6 +8,11 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Tetris
 {
+    public enum MovementAction
+    {
+        None, Left, Right, Down, Rotate
+    }
+
     public static class Helper
     {
         public const float WIDTH = 32;
@@ -238,6 +243,25 @@ namespace Tetris
             return valid;
         }
         /// <summary>
+        /// See if a move is allowed by a figure.
+        /// </summary>
+        /// <param name="figure">The figure to move.</param>
+        /// <param name="move">The desired move amount.</param>
+        /// <returns>Whether the move is valid.</returns>
+        public static bool IsMoveAllowed(Figure figure, Vector2 move, List<Block> blocks)
+        {
+            //Set some startup variables.
+            bool valid = false;
+
+            //Project the current figure to the new position and see whether the move was valid.
+            figure.Move(move);
+            valid = !blocks.Exists(block => figure.Intersects(block));
+            figure.Move(-move);
+
+            //Return the result.
+            return valid;
+        }
+        /// <summary>
         /// See if a rotation is allowed by a figure.
         /// </summary>
         /// <returns>Whether the rotation is valid.</returns>
@@ -258,6 +282,18 @@ namespace Tetris
         public static Rectangle ToRectangle(Block block)
         {
             return new Rectangle((int)Math.Round(block.Position.X), (int)Math.Round(block.Position.Y), (int)WIDTH, (int)HEIGHT);
+        }
+        /// <summary>
+        /// Rotate a vector around a point.
+        /// </summary>
+        /// <param name="position">The vector to rotate.</param>
+        /// <param name="origin">The origin of the rotation.</param>
+        /// <param name="rotation">The amount of rotation in radians.</param>
+        /// <returns>The rotated vector.</returns>
+        public static Vector2 RotateVector(Vector2 position, Vector2 origin, float rotation)
+        {
+            return new Vector2((float)(origin.X + (position.X - origin.X) * Math.Cos(rotation) - (position.Y - origin.Y) * Math.Sin(rotation)), (float)(origin.Y
+            + (position.Y - origin.Y) * Math.Cos(rotation) + (position.X - origin.X) * Math.Sin(rotation)));
         }
     }
 }
