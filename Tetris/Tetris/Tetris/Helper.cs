@@ -257,7 +257,7 @@ namespace Tetris
         /// <returns>A rectangle matching the block's bounds.</returns>
         public static Rectangle ToRectangle(Block block)
         {
-            return new Rectangle((int)block.Position.X, (int)block.Position.Y, (int)WIDTH, (int)HEIGHT);
+            return new Rectangle((int)Math.Round(block.Position.X), (int)Math.Round(block.Position.Y), (int)WIDTH, (int)HEIGHT);
         }
     }
 }

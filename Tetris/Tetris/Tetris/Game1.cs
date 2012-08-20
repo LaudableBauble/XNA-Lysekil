@@ -168,26 +168,7 @@ namespace Tetris
             //Add gravity to the current figure if it is not sleeping.
             Vector2 m = new Vector2(0, _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds);
             if (Helper.IsMoveAllowed(_currentFigure, m, _blocks, out m, false)) { _currentFigure.Move(m); }
-            else
-            {
-                _currentFigure.IsSleeping = true;
-
-                bool bug = true;
-                foreach (Block block in _currentFigure.Blocks)
-                {
-                    Vector2 pos = block.Position + new Vector2(Helper.WIDTH / 2, 3 * (Helper.HEIGHT / 2));
-                    if (_blocks.Exists(item => block.Parent != item.Parent && item.Contains(pos)))
-                    {
-                        bug = false;
-                        break;
-                    }
-                }
-                
-                if (bug)
-                {
-
-                }
-            }
+            else { _currentFigure.IsSleeping = true; }
 
             //Check for wall and floor collisions for the current figure.
             _currentFigure.Left = MathHelper.Max(_currentFigure.Left, 0);
@@ -223,7 +204,7 @@ namespace Tetris
 
             //Draw background.
             _spriteBatch.Begin();
-            _spriteBatch.Draw(_background, Vector2.Zero, Color.White);
+            //_spriteBatch.Draw(_background, Vector2.Zero, Color.White);
             _spriteBatch.End();
 
             //Draw all figures.
