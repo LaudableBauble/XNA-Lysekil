@@ -23,9 +23,6 @@ namespace Tetris
         private Figure _currentFigure;
         private Figure _debugFigure;
         private bool _gameOver;
-        private MovementAction _action;
-        private float _elapsedMovementTime;
-        private float _allowedTimeBuffer;
 
         public Game1()
         {
@@ -52,11 +49,8 @@ namespace Tetris
             //Initialize the game.
             _input = new InputState();
             _blocks = new List<Block>();
-            _gravity = 16;
+            _gravity = Helper.GRAVITY;
             _gameOver = false;
-            _action = MovementAction.None;
-            _elapsedMovementTime = 0;
-            _allowedTimeBuffer = 1;
 
             //Add the first figure.
             _currentFigure = Helper.RandomFigure();
@@ -103,24 +97,8 @@ namespace Tetris
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed) { this.Exit(); }
             if (_input.IsKeyDown(Keys.Escape)) { this.Exit(); }
 
-            //Check for rotation and movement input.
-            if (!_currentFigure.IsSleeping)
-            {
-                //Whether new input has arrived.
-                MovementAction action = MovementAction.None;
-
-                if (_input.IsNewKeyPress(Keys.Up)) { action = MovementAction.Rotate; }
-                else if (_input.IsNewKeyPress(Keys.Right)) { action = MovementAction.Right; }
-                else if (_input.IsNewKeyPress(Keys.Left)) { action = MovementAction.Left; }
-                else if (_input.IsKeyDown(Keys.Down)) { action = MovementAction.Down; }
-
-                //If a new action has commanded, reset the time buffer and save it.
-                if (action != MovementAction.None)
-                {
-                    _elapsedMovementTime = 0;
-                    _action = action;
-                }
-            }
+            //Let the current figure handle input.
+            _currentFigure.HandleInput(_input);
 
             #region Debug
             //Select a figure.
@@ -130,7 +108,7 @@ namespace Tetris
                 _debugFigure = debug == null || debug.Parent == null ? _currentFigure : (Figure)debug.Parent;
             }
             //Pause the game, ie. stop the gravity.
-            if (_input.IsNewKeyPress(Keys.P)) { _gravity = _gravity == 0 ? 16 : 0; }
+            if (_input.IsNewKeyPress(Keys.P)) { _gravity = _gravity == 0 ? Helper.GRAVITY : 0; }
             #endregion
         }
         /// <summary>
@@ -140,24 +118,20 @@ namespace Tetris
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            /*
-             * 1. Handle input.
-             * 2. Move according to input.
-             * 3. Gravity and collision check.
-             * 4. Viewport bound check.
-             * 5. Cell alignment.
-             * 6. Remove completed rows.
-             * 7. Check if to launch new figure.
-             */
+            //Handle input.
+            HandleInput();
+
+            //Quit the cycle if game over.
+            if (_gameOver) { return; }
 
             //Check if a new figure block should be launched.
             if (_currentFigure.IsSleeping)
             {
                 //Check for game over.
-                if (_blocks.Exists(b => !_currentFigure.Blocks.Contains(b) &&
-                    b.Contains(new Vector2(Math.Min(Helper.WIDTH * 15 + 1, GraphicsDevice.Viewport.Width - 1), 1))))
+                if (_blocks.Exists(b => b.Parent.IsSleeping && b.Position.Y <= 0))
                 {
                     _gameOver = true;
+                    return;
                 }
                 else
                 {
@@ -167,65 +141,8 @@ namespace Tetris
                 }
             }
 
-            //Quit the cycle if game over.
-            if (_gameOver) { return; }
-
-            //Handle input.
-            HandleInput();
-
-            //Calculate the elapsed movement time and allow/disallow movement actions.
-            _elapsedMovementTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (_elapsedMovementTime >= _allowedTimeBuffer) { _action = MovementAction.None; }
-
-            //Check for movement and rotation.
-            if (!_currentFigure.IsSleeping)
-            {
-                switch (_action)
-                {
-                    case MovementAction.Rotate:
-                        {
-                            if (Helper.IsRotationAllowed(_currentFigure, _blocks)) { _currentFigure.Rotate(); _action = MovementAction.None; }
-                            break;
-                        }
-                    case MovementAction.Right:
-                        {
-                            Vector2 move = new Vector2(Helper.WIDTH, 0);
-                            if (Helper.IsMoveAllowed(_currentFigure, move, _blocks)) { _currentFigure.Move(move); _action = MovementAction.None; }
-                            break;
-                        }
-                    case MovementAction.Left:
-                        {
-                            Vector2 move = new Vector2(-Helper.WIDTH, 0);
-                            if (Helper.IsMoveAllowed(_currentFigure, move, _blocks)) { _currentFigure.Move(move); _action = MovementAction.None; }
-                            break;
-                        }
-                    case MovementAction.Down:
-                        {
-                            Vector2 move = new Vector2(0, _gravity);
-                            if (Helper.IsMoveAllowed(_currentFigure, move, _blocks)) { _currentFigure.Move(move); _action = MovementAction.None; }
-                            break;
-                        }
-                    case MovementAction.None: { break; }
-                }
-            }
-
-            //Add gravity to the current figure.
-            Vector2 m = new Vector2(0, _gravity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            if (Helper.IsMoveAllowed(_currentFigure, m, _blocks)) { _currentFigure.Move(m); }
-            else { _currentFigure.IsSleeping = true; }
-
-            //Check for wall and floor collisions for the current figure.
-            _currentFigure.Left = MathHelper.Max(_currentFigure.Left, 0);
-            _currentFigure.Right = MathHelper.Min(_currentFigure.Right, GraphicsDevice.Viewport.Width);
-            if (_currentFigure.Bottom >= GraphicsDevice.Viewport.Height)
-            {
-                _currentFigure.IsSleeping = true;
-                _currentFigure.Move(new Vector2(0, GraphicsDevice.Viewport.Height - _currentFigure.Bottom));
-            }
-
-            //Make sure that the figure is in one of the designated cells.
-            _currentFigure.Left = Helper.WIDTH * (float)Math.Round(_currentFigure.Left / Helper.WIDTH);
-            if (_currentFigure.IsSleeping) { _currentFigure.Top = Helper.HEIGHT * (float)Math.Round(_currentFigure.Top / Helper.HEIGHT); }
+            //Update the current figure.
+            _currentFigure.Update(gameTime, _blocks, _gravity, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
 
             //Remove all completed rows.
             if (_currentFigure.IsSleeping) { RemoveCompletedRows(); }

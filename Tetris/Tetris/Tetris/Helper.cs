@@ -17,6 +17,7 @@ namespace Tetris
     {
         public const float WIDTH = 32;
         public const float HEIGHT = 32;
+        public const float GRAVITY = 16;
 
         /// <summary>
         /// Get a random figure.

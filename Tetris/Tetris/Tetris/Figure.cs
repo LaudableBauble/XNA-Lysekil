@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace Tetris
 {
@@ -15,6 +16,9 @@ namespace Tetris
         public Color Color { get; set; }
         public List<Block> Blocks { get; set; }
         public Block CenterBlock { get; set; }
+        public MovementAction Action { get; set; }
+        public float ElapsedMovementTime { get; set; }
+        public float ActionBuffer { get; set; }
 
         /// <summary>
         /// The leftmost x-coordinate of the figure.
@@ -104,8 +108,13 @@ namespace Tetris
         /// </summary>
         public Figure()
         {
-            Blocks = new List<Block>();
+            IsSleeping = false;
             Color = Color.Crimson;
+            Blocks = new List<Block>();
+            CenterBlock = null;
+            Action = MovementAction.None;
+            ElapsedMovementTime = 0;
+            ActionBuffer = 1;
         }
         /// <summary>
         /// Constructor for a figure.
@@ -113,14 +122,107 @@ namespace Tetris
         /// <param name="figure">The figure to clone.</param>
         public Figure(Figure figure)
         {
+            IsSleeping = figure.IsSleeping;
             Color = figure.Color;
             Blocks = new List<Block>();
             foreach (var block in figure.Blocks) { Blocks.Add(new Block(block)); }
             CenterBlock = figure.CenterBlock == null ? null : Blocks[figure.Blocks.IndexOf(figure.CenterBlock)];
+            Action = figure.Action;
+            ElapsedMovementTime = figure.ElapsedMovementTime;
+            ActionBuffer = figure.ActionBuffer;
         }
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Let the figure handle user input.
+        /// </summary>
+        /// <param name="input">The current state of input.</param>
+        public void HandleInput(InputState input)
+        {
+            //Check for rotation and movement input.
+            if (!IsSleeping)
+            {
+                //Whether new input has arrived.
+                MovementAction action = MovementAction.None;
+
+                if (input.IsNewKeyPress(Keys.Up)) { action = MovementAction.Rotate; }
+                else if (input.IsNewKeyPress(Keys.Right)) { action = MovementAction.Right; }
+                else if (input.IsNewKeyPress(Keys.Left)) { action = MovementAction.Left; }
+                else if (input.IsKeyDown(Keys.Down)) { action = MovementAction.Down; }
+
+                //If a new action has been commanded, save it and reset the time buffer.
+                if (action != MovementAction.None)
+                {
+                    ElapsedMovementTime = 0;
+                    Action = action;
+                }
+            }
+        }
+        /// <summary>
+        /// Update the logic of this figure.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        /// <param name="blocks">All active blocks in the game.</param>
+        /// <param name="gravity">The current gravity.</param>
+        /// <param name="vHeight">The width of the viewport.</param>
+        /// <param name="vWidth">The height of the viewport.</param>
+        public void Update(GameTime gameTime, List<Block> blocks, float gravity, float vWidth, float vHeight)
+        {
+            //Calculate the elapsed movement time and allow/disallow movement actions.
+            ElapsedMovementTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (ElapsedMovementTime >= ActionBuffer) { Action = MovementAction.None; }
+
+            //Check for movement and rotation.
+            if (!IsSleeping)
+            {
+                switch (Action)
+                {
+                    case MovementAction.Rotate:
+                        {
+                            if (Helper.IsRotationAllowed(this, blocks)) { Rotate(); Action = MovementAction.None; }
+                            break;
+                        }
+                    case MovementAction.Right:
+                        {
+                            Vector2 move = new Vector2(Helper.WIDTH, 0);
+                            if (Helper.IsMoveAllowed(this, move, blocks)) { Move(move); Action = MovementAction.None; }
+                            break;
+                        }
+                    case MovementAction.Left:
+                        {
+                            Vector2 move = new Vector2(-Helper.WIDTH, 0);
+                            if (Helper.IsMoveAllowed(this, move, blocks)) { Move(move); Action = MovementAction.None; }
+                            break;
+                        }
+                    case MovementAction.Down:
+                        {
+                            Vector2 move = new Vector2(0, gravity);
+                            if (Helper.IsMoveAllowed(this, move, blocks)) { Move(move); Action = MovementAction.None; }
+                            break;
+                        }
+                    case MovementAction.None: { break; }
+                }
+            }
+
+            //Add gravity to the current figure.
+            Vector2 m = new Vector2(0, gravity * (float)gameTime.ElapsedGameTime.TotalSeconds);
+            if (Helper.IsMoveAllowed(this, m, blocks)) { Move(m); }
+            else { IsSleeping = true; }
+
+            //Check for wall and floor collisions for the current figure.
+            Left = MathHelper.Max(Left, 0);
+            Right = MathHelper.Min(Right, vWidth);
+            if (Bottom >= vHeight)
+            {
+                IsSleeping = true;
+                Move(new Vector2(0, vHeight - Bottom));
+            }
+
+            //Make sure that the figure is in one of the designated cells.
+            Left = Helper.WIDTH * (float)Math.Round(Left / Helper.WIDTH);
+            if (IsSleeping) { Top = Helper.HEIGHT * (float)Math.Round(Top / Helper.HEIGHT); }
+        }
         /// <summary>
         /// Draw the figure.
         /// </summary>
@@ -181,14 +283,28 @@ namespace Tetris
                 }
             }
         }
+        /// <summary>
+        /// Move the figure a specified amount.
+        /// </summary>
+        /// <param name="amount">The amount to move.</param>
         public void Move(Vector2 amount)
         {
             Blocks.ForEach(item => item.Position += amount);
         }
+        /// <summary>
+        /// See if this figure intersects a block.
+        /// </summary>
+        /// <param name="block">The block in question.</param>
+        /// <returns>Whether this figure intersects the block.</returns>
         public bool Intersects(Block block)
         {
             return block.Parent != this && Blocks.Exists(item => block.Intersects(item));
         }
+        /// <summary>
+        /// See if this figure contains a vector.
+        /// </summary>
+        /// <param name="v">The vector to be contained.</param>
+        /// <returns>Whether this figure contained the vector.</returns>
         public bool Contains(Vector2 v)
         {
             return Blocks.Exists(item => item.Contains(v));
